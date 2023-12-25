@@ -1,8 +1,6 @@
 #include <Arduino.h>
-#include <ArduinoJson.h>
-#include <WiFiS3.h>
-#include <aWOT.h>
 #include <WaterPumpController.h>
+#include <RemoteControl.h>
 
 // Setting up water pump
 WaterPumpController waterPumpController(12, 9, 3);
@@ -10,81 +8,11 @@ WaterPumpController waterPumpController(12, 9, 3);
 // Their is no reason to make it configurable and add unnecessary complexity
 const int WATER_PUMP_SAFE_THRESHOLD = 10 * 1000;
 
-// setting up WiFi
-const char *SSID = "MyWiFiNetwork";
-const char *PWD = "VerySecurePassword";
-
-// minimalistic webserver
-WiFiServer server(80);
-Application app;
-
-void printMacAddress(byte mac[]) {
-  for (int i = 0; i < 6; i++) {
-    if (i > 0) {
-      Serial.print(":");
-    }
-    if (mac[i] < 16) {
-      Serial.print("0");
-    }
-    Serial.print(mac[i], HEX);
-  }
-  Serial.println();
-}
-
-void printCurrentNet() {
-  // print the SSID of the network you're attached to:
-  Serial.print("SSID: ");
-  Serial.println(WiFi.SSID());
-
-  // print the MAC address of the router you're attached to:
-  byte bssid[6];
-  WiFi.BSSID(bssid);
-  Serial.print("BSSID: ");
-  printMacAddress(bssid);
-
-  // print the received signal strength:
-  long rssi = WiFi.RSSI();
-  Serial.print("signal strength (RSSI):");
-  Serial.println(rssi);
-
-  // print the encryption type:
-  byte encryption = WiFi.encryptionType();
-  Serial.print("Encryption Type:");
-  Serial.println(encryption, HEX);
-  Serial.println();
-}
-
-void connectToWiFi() {
-  if (WiFi.status() == WL_NO_MODULE) {
-    Serial.println("Communication with WiFi module failed!");
-    // block further activity
-    while(true) delay(500);
-  }
-
-  // info about your adapter 
-  String firmware_version = WiFi.firmwareVersion();
-
-  Serial.print("WiFi Firmware Version: ");
-  Serial.println(firmware_version);
-  if ( firmware_version < WIFI_FIRMWARE_LATEST_VERSION) {
-    Serial.print("Latest available version: ");
-    Serial.println(WIFI_FIRMWARE_LATEST_VERSION);
-    Serial.println("Please upgrade your firmware.");
-  }
-
-  Serial.print("Connecting to ");
-  Serial.println(SSID);
-
-  WiFi.begin(SSID, PWD);
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(500);
-  }
-
-  Serial.print("Connected. IP: ");
-  Serial.println(WiFi.localIP());
-  printCurrentNet();
-}
+// setting up remote control
+RemoteControl remoteControl(
+  "MyWiFiNetwork", // network name/SSID
+  "VerySecurePassword" // network password
+);
 
 bool isValidIntNumber(const char *str, const int maxValue, const int minValue=0) {
   if (strlen(str) <= 0) return false;
@@ -116,21 +44,11 @@ void pour_tea(Request &req, Response &res) {
 void setup() {
   Serial.begin(9600);
   waterPumpController.setup();
-  
-  // connect to WiFi
-  connectToWiFi();
-
-  // Set endpoints
-  app.post("/pour_tea", &pour_tea);
-  // setup Server
-  server.begin();
+  remoteControl.setup([](Application &app) {
+    app.get("/pour_tea", pour_tea);
+  });
 }
 
 void loop() {
-  WiFiClient client = server.available();
-
-  if (client.connected()) {
-    app.process(&client);
-    client.stop();
-  }
+  remoteControl.process();
 };
