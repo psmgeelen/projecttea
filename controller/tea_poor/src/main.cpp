@@ -2,22 +2,21 @@
 #include <ArduinoJson.h>
 #include <WiFiS3.h>
 #include <aWOT.h>
+#include <WaterPumpController.h>
+
+// Setting up water pump
+WaterPumpController waterPumpController(12, 9, 3);
+// Just for safety reasons, we don't want to pour tea for too long
+// Their is no reason to make it configurable and add unnecessary complexity
+const int WATER_PUMP_SAFE_THRESHOLD = 10 * 1000;
 
 // setting up WiFi
 const char *SSID = "MyWiFiNetwork";
 const char *PWD = "VerySecurePassword";
 
-// Setting up Motorcontroller
-int directionPin = 12;
-int pwmPin = 3;
-int brakePin = 9;
-
 // minimalistic webserver
 WiFiServer server(80);
 Application app;
-
-// Start value Threshold for pouring
-int threshold_pour = 10;
 
 void printMacAddress(byte mac[]) {
   for (int i = 0; i < 6; i++) {
@@ -31,7 +30,6 @@ void printMacAddress(byte mac[]) {
   }
   Serial.println();
 }
-
 
 void printCurrentNet() {
   // print the SSID of the network you're attached to:
@@ -56,13 +54,11 @@ void printCurrentNet() {
   Serial.println();
 }
 
-
 void connectToWiFi() {
-
   if (WiFi.status() == WL_NO_MODULE) {
     Serial.println("Communication with WiFi module failed!");
     // block further activity
-    while(true);
+    while(true) delay(500);
   }
 
   // info about your adapter 
@@ -76,16 +72,13 @@ void connectToWiFi() {
     Serial.println("Please upgrade your firmware.");
   }
 
-
   Serial.print("Connecting to ");
   Serial.println(SSID);
 
   WiFi.begin(SSID, PWD);
-
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(500);
-    // we can even make the ESP32 to sleep
   }
 
   Serial.print("Connected. IP: ");
@@ -93,104 +86,42 @@ void connectToWiFi() {
   printCurrentNet();
 }
 
-
-
-void set_threshold(Request &req, Response &res) {
-  char seconds_char[64];
-  req.query("seconds", seconds_char, 64);
-
-  if (strlen(seconds_char) != NULL){
-    threshold_pour = atoi(seconds_char);
-    res.print("You have reset the threshold! Please make sure that this is safe, as it aims to prevent overflow due to mistyping the query parameter. The threshold is now set to: ");
-    res.print(threshold_pour);
-  } else {
-    res.print("Please specify amount of seconds in query parameter; threshold?seconds=10 e.g..");
-  }
-}
-
-void get_threshold(Request &req, Response &res) {
-  res.print("The threshold is: ");
-  res.print(threshold_pour);
-  res.print(" seconds.");
+bool isValidIntNumber(const char *str, const int maxValue, const int minValue=0) {
+  if (strlen(str) <= 0) return false;
+  const int value = atoi(str);
+  if (value < minValue) return false;
+  if (maxValue <= value) return false;
+  return true;
 }
 
 void pour_tea(Request &req, Response &res) {
-  char seconds_char[64];
-  req.query("seconds", seconds_char, 64);
-  int pouring_delay = atoi(seconds_char);
-
-  if (strlen(seconds_char) != NULL && pouring_delay <= threshold_pour ){
-    //release breaks
-    digitalWrite(brakePin, LOW);
-
-    //set work duty for the motor, Duty is the amount of power it is getting from 0 to 256.
-    analogWrite(pwmPin, 256);
-
-    delay(pouring_delay*1000); // convert miliseconds to seconds
-
-    //activate breaks
-    digitalWrite(brakePin, HIGH);
-
-    //set work duty for the motor to 0 (off)
-    analogWrite(pwmPin, 0);
-    // Serial.println(req.JSON());
-    res.print("Poured Tea in: ");
-    res.print(pouring_delay);
-    res.print(" seconds!");
-  } else if (pouring_delay > threshold_pour) {
-    res.print("Exceeded safety threshold for pouring. Change threshold in firmware or use endpoint /flush and set minutes");
+  char milliseconds[64];
+  req.query("milliseconds", milliseconds, 64);
+  if (!isValidIntNumber(milliseconds, WATER_PUMP_SAFE_THRESHOLD)) {
+    res.println("Please specify amount of milliseconds in query parameter; pour_tea?milliseconds=10 e.g.");
+    res.print("Maximal allowed time is: ");
+    res.println(WATER_PUMP_SAFE_THRESHOLD);
+    return;
   }
-  else {
-    res.print("Please specify amount of seconds in query parameter; pour_tea?seconds=10 e.g..");
-  }
-}
+  const int pouringDelayMs = atoi(milliseconds);
+  // actually pour tea
+  waterPumpController.pour(pouringDelayMs);
 
-void flush(Request &req, Response &res) {
-  char minutes_char[64];
-  req.query("minutes", minutes_char, 64);
-
-  if (strlen(minutes_char) != NULL){
-    //release breaks
-    digitalWrite(brakePin, LOW);
-
-    //set work duty for the motor, Duty is the amount of power it is getting from 0 to 256.
-    analogWrite(pwmPin, 256);
-
-    int pouring_delay = atoi(minutes_char);
-    delay(pouring_delay*1000*60); // convert miliseconds to seconds
-
-    //activate breaks
-    digitalWrite(brakePin, HIGH);
-
-    //set work duty for the motor to 0 (off)
-    analogWrite(pwmPin, 0);
-    // Serial.println(req.JSON());
-    res.print("Poured Tea in: ");
-    res.print(pouring_delay);
-    res.print(" minutes!");
-  } else {
-    res.print("Please specify amount of seconds in query parameter; flush?minutes=1 e.g..");
-  }
+  // Serial.println(req.JSON());
+  res.print("Poured Tea in: ");
+  res.print(pouringDelayMs);
+  res.print(" milliseconds!");
 }
 
 void setup() {
-
-  // define print serial port
   Serial.begin(9600);
-  //define pins
-  pinMode(directionPin, OUTPUT);
-  pinMode(pwmPin, OUTPUT);
-  pinMode(brakePin, OUTPUT);
-
+  waterPumpController.setup();
+  
   // connect to WiFi
   connectToWiFi();
 
   // Set endpoints
   app.post("/pour_tea", &pour_tea);
-  app.post("/flush", &flush);
-  app.get("/threshold", &get_threshold);
-  app.post("/threshold", &set_threshold);
-
   // setup Server
   server.begin();
 }
