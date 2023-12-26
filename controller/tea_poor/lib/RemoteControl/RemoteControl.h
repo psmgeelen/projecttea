@@ -10,7 +10,7 @@ typedef void (*RemoteControlRoutesCallback)(Application &app);
 
 class RemoteControl {
 public:
-  RemoteControl(const char* SSID, const char* SSIDPassword);  
+  RemoteControl(const char* SSID, const char* SSIDPassword);
   ~RemoteControl();
   void setup(RemoteControlRoutesCallback routes);
   void process();

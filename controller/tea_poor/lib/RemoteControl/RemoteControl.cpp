@@ -58,7 +58,6 @@ void RemoteControl::_setupNetwork() {
     Serial.print("Latest available version: ");
     Serial.println(WIFI_FIRMWARE_LATEST_VERSION);
     Serial.println("Please upgrade your firmware.");
-    while(true) delay(500);
   }
 
   Serial.print("Connecting to ");
