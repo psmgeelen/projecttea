@@ -1,10 +1,16 @@
 #include "WaterPumpScheduler.h"
 
-WaterPumpScheduler::WaterPumpScheduler(IWaterPump* waterPump, unsigned long forceStopIntervalMs) {
+WaterPumpScheduler::WaterPumpScheduler(IWaterPump* waterPump, unsigned long forceStopIntervalMs) :
+  _waterPump(waterPump),
+  _forceStopIntervalMs(forceStopIntervalMs)
+{
 }
 
 WaterPumpScheduler::~WaterPumpScheduler() {
-  delete _waterPump;
+  // TODO: find better way to manage memory
+  //       for now it's not a big deal, because Arduino will never stop
+  //       and tests are manage memory by themselves
+  // delete _waterPump;
 }
 
 void WaterPumpScheduler::setup() {

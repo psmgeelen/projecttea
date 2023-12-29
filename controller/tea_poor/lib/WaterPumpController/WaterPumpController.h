@@ -1,6 +1,6 @@
 #ifndef WATERPUMPCONTROLLER_H
 #define WATERPUMPCONTROLLER_H
-#include "IWaterPump.h"
+#include <IWaterPump.h>
 
 class WaterPumpController: public IWaterPump {
 private:
