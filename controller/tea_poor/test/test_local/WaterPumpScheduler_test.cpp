@@ -37,17 +37,17 @@ void test_pump_stops_after_given_time() {
   waterPumpScheduler.start(runTimeMs, currentTimeMs);
   // check status
   auto status = waterPumpScheduler.status();
-  UNITY_TEST_ASSERT_TRUE(status.isRunning);
-  UNITY_TEST_ASSERT_EQUAL(status.stopTime, runTimeMs);
+  TEST_ASSERT_TRUE(status.isRunning);
+  TEST_ASSERT_EQUAL(status.stopTime, runTimeMs);
 
   while (currentTimeMs < runTimeMs) {
     waterPumpScheduler.tick(currentTimeMs);
-    UNITY_TEST_ASSERT_TRUE(fakeWaterPump.isRunning());
+    TEST_ASSERT_TRUE(fakeWaterPump.isRunning());
     currentTimeMs += 100;
   }
   // pump should be stopped after given time
   waterPumpScheduler.tick(runTimeMs + 1);
-  UNITY_TEST_ASSERT_FALSE(fakeWaterPump.isRunning());
+  TEST_ASSERT_FALSE(fakeWaterPump.isRunning());
 }
 
 // test that pump is periodically forced to stop after given time
@@ -60,14 +60,14 @@ void test_pump_is_periodically_forced_to_stop_after_given_time () {
   waterPumpScheduler.start(1, currentTimeMs);
   currentTimeMs += 1;
   waterPumpScheduler.tick(currentTimeMs);
-  UNITY_TEST_ASSERT_FALSE(fakeWaterPump.isRunning()); // pump should be stopped after given time
+  TEST_ASSERT_FALSE(fakeWaterPump.isRunning()); // pump should be stopped after given time
 
   for(int i = 0; i < 10; i++) {
     // emulate that pump was started again
     fakeWaterPump.start();
     currentTimeMs += 1000;
     waterPumpScheduler.tick(currentTimeMs);
-    UNITY_TEST_ASSERT_FALSE(fakeWaterPump.isRunning()); // pump should be stopped
+    TEST_ASSERT_FALSE(fakeWaterPump.isRunning()); // pump should be stopped
   }
 }
 
