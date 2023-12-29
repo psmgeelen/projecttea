@@ -24,6 +24,6 @@ jobs:
         working-directory: ./controller/tea_poor
         run: pio test -e native
 
-      - name: Build PlatformIO Project for Android
+      - name: Build PlatformIO Project for Arduino
         working-directory: ./controller/tea_poor
         run: pio run -e uno_r4_wifi
