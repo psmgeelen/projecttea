@@ -8,13 +8,13 @@
 // It is also ensuring that water pump is stopped if not needed
 class WaterPumpScheduler {
 private:
-  IWaterPump* _waterPump;
+  IWaterPumpPtr _waterPump;
   unsigned long _stopTime = 0;
   // each X milliseconds will force stop water pump
   unsigned long _forceStopIntervalMs;
 public:
-  WaterPumpScheduler(IWaterPump* waterPump, unsigned long forceStopIntervalMs);
-  WaterPumpScheduler(IWaterPump* waterPump) : WaterPumpScheduler(waterPump, 1000) {}
+  WaterPumpScheduler(IWaterPumpPtr waterPump, unsigned long forceStopIntervalMs);
+  WaterPumpScheduler(IWaterPumpPtr waterPump) : WaterPumpScheduler(waterPump, 1000) {}
   ~WaterPumpScheduler();
 
   void setup();

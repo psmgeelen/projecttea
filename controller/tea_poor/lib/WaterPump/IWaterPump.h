@@ -1,6 +1,8 @@
 #ifndef IWATERPUMP_H
 #define IWATERPUMP_H
 
+#include <memory>
+
 class IWaterPump {
 public:
   virtual ~IWaterPump() {}
@@ -12,4 +14,6 @@ public:
   virtual bool isRunning() const = 0;
 };
 
+// define shared pointer alias
+using IWaterPumpPtr = std::shared_ptr<IWaterPump>;
 #endif
