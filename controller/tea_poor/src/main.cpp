@@ -1,11 +1,12 @@
 #include <Arduino.h>
+#include <memory>
 #include <WaterPumpController.h>
 #include <WaterPumpScheduler.h>
 #include <RemoteControl.h>
 
 // Setting up water pump
 WaterPumpScheduler waterPump(
-  new WaterPumpController(12, 9, 3)
+  std::make_shared<WaterPumpController>(12, 9, 3)
 );
 // Just for safety reasons, we don't want to pour tea for too long
 // Their is no reason to make it configurable and add unnecessary complexity
@@ -59,9 +60,8 @@ void pour_tea(Request &req, Response &res) {
   char milliseconds[64];
   req.query("milliseconds", milliseconds, 64);
   if (!isValidIntNumber(milliseconds, WATER_PUMP_SAFE_THRESHOLD)) {
-    res.println("Please specify amount of milliseconds in query parameter; pour_tea?milliseconds=10 e.g.");
-    res.print("Maximal allowed time is: ");
-    res.println(WATER_PUMP_SAFE_THRESHOLD);
+    // send error message as JSON
+    res.println("{ \"error\": \"invalid milliseconds value\" }");
     return;
   }
   // start pouring tea
