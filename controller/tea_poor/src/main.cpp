@@ -3,21 +3,21 @@
 #include <WaterPumpController.h>
 #include <WaterPumpScheduler.h>
 #include <RemoteControl.h>
+#include "secrets.h"
 
 #include <sstream>
 // Setting up water pump
 WaterPumpScheduler waterPump(
-  std::make_shared<WaterPumpController>(12, 9, 3)
+  std::make_shared<WaterPumpController>(
+    WATER_PUMP_DIRECTION_PIN, WATER_PUMP_BRAKE_PIN, WATER_PUMP_POWER_PIN
+  )
 );
 // Just for safety reasons, we don't want to pour tea for too long
 // Their is no reason to make it configurable and add unnecessary complexity
 const int WATER_PUMP_SAFE_THRESHOLD = 10 * 1000;
 
 // setting up remote control
-RemoteControl remoteControl(
-  "MyWiFiNetwork", // network name/SSID
-  "VerySecurePassword" // network password
-);
+RemoteControl remoteControl(WIFI_SSID, WIFI_PASSWORD);
 
 void _sendSystemStatus(std::ostream& response) {
   response << "{";
