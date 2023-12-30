@@ -29,9 +29,6 @@ void WaterPumpScheduler::tick(unsigned long currentTimeMs) {
   }
 }
 
-WaterPumpScheduler::WaterPumpStatus WaterPumpScheduler::status() {
-  return {
-    _waterPump->isRunning(),
-    _stopTime
-  };
+WaterPumpStatus WaterPumpScheduler::status() {
+  return WaterPumpStatus(_waterPump->isRunning(), _stopTime);
 }
