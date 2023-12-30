@@ -20,6 +20,10 @@ jobs:
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
 
+      # rename src/secrets.h.example to src/secrets.h, to use a dummy values during build
+      - name: Copy secrets.h
+        run: cp ./controller/tea_poor/src/secrets.h.example ./controller/tea_poor/src/secrets.h
+
       - name: Build PlatformIO Project for Arduino
         working-directory: ./controller/tea_poor
         run: pio run -e uno_r4_wifi
