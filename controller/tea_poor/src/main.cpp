@@ -4,6 +4,7 @@
 #include <WaterPumpScheduler.h>
 #include <RemoteControl.h>
 
+#include <sstream>
 // Setting up water pump
 WaterPumpScheduler waterPump(
   std::make_shared<WaterPumpController>(12, 9, 3)
@@ -18,34 +19,27 @@ RemoteControl remoteControl(
   "VerySecurePassword" // network password
 );
 
-void _sendSystemStatus(Response &res) {
-  // send system status as JSON
-  res.println("{");
+void _sendSystemStatus(std::ostream& response) {
+  response << "{";
   // send water threshold
-  res.print("\"water threshold\": ");
-  res.print(WATER_PUMP_SAFE_THRESHOLD);
-  res.println(",");
-  
+  response << "\"water threshold\": " << WATER_PUMP_SAFE_THRESHOLD << ",";
   // send water pump status
   const auto waterPumpStatus = waterPump.status();
-  res.println("\"pump\": {");
-  res.print("\"running\": ");
-  res.print(waterPumpStatus.isRunning ? "true, " : "false, ");
   const unsigned long timeLeft = 
     waterPumpStatus.isRunning ?
     waterPumpStatus.stopTime - millis() :
     0;
-  res.print("\"time left\": ");
-  res.print(timeLeft);
-  res.println("},");
+  response 
+    << "\"pump\": {"
+    << "  \"running\": " << (waterPumpStatus.isRunning ? "true, " : "false, ")
+    << "  \"time left\": " << timeLeft
+    << "}";
   // end of water pump status
   ///////////////////////////////////
   // send remote control status
-  res.print("\"remote control\": ");
-  res.print(remoteControl.asJSONString());
-  res.println();
+  response << "\"remote control\": " << remoteControl.asJSONString();
   // end of JSON
-  res.println("}");
+  response << "}";
 }
 
 bool isValidIntNumber(const char *str, const int maxValue, const int minValue=0) {
@@ -56,12 +50,10 @@ bool isValidIntNumber(const char *str, const int maxValue, const int minValue=0)
   return true;
 }
 
-void pour_tea(Request &req, Response &res) {
-  char milliseconds[64];
-  req.query("milliseconds", milliseconds, 64);
+void pour_tea(const char *milliseconds, std::ostream &res) {
   if (!isValidIntNumber(milliseconds, WATER_PUMP_SAFE_THRESHOLD)) {
     // send error message as JSON
-    res.println("{ \"error\": \"invalid milliseconds value\" }");
+    res << "{ \"error\": \"invalid milliseconds value\" }";
     return;
   }
   // start pouring tea
@@ -72,16 +64,28 @@ void pour_tea(Request &req, Response &res) {
 void setup() {
   Serial.begin(9600);
   waterPump.setup();
+  // TODO: find a way to remove redundant code with string streams
   remoteControl.setup([](Application &app) {
-    app.get("/pour_tea", pour_tea);
+    app.get("/pour_tea", [](Request &req, Response &res) {
+      char milliseconds[64];
+      req.query("milliseconds", milliseconds, 64);
+      
+      std::stringstream response;
+      pour_tea(milliseconds, response);
+      res.println(response.str().c_str());
+    });
     // stop water pump
     app.get("/stop", [](Request &req, Response &res) {
       waterPump.stop();
-      _sendSystemStatus(res);
+      std::stringstream response;
+      _sendSystemStatus(response);
+      res.println(response.str().c_str());
     });
     // get system status
     app.get("/status", [](Request &req, Response &res) {
-      _sendSystemStatus(res);
+      std::stringstream response;
+      _sendSystemStatus(response);
+      res.println(response.str().c_str());
     });
   });
 }
