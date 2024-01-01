@@ -1,38 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './App.css';
-import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import { Container, Form, Button } from 'react-bootstrap';
 
 import { useWaterPumpAPI } from './contexts/WaterPumpAPIContext';
 import { useNotificationsSystem } from './contexts/NotificationsContext.js';
 import NotificationsArea from './components/NotificationsArea.js';
 import APIAddressField from './components/APIAddressField';
-
-const STORE_RUNTIME = 'runTime';
+import PourTimeField from './components/PourTimeField';
 
 function App() {
   const waterPump = useWaterPumpAPI().API;
-  const [runTime, setRunTime] = useState(1000);
-  const NotificationsSystem = useNotificationsSystem();
-
-  useEffect(() => {
-    let storedRunTime = localStorage.getItem(STORE_RUNTIME);
-    if (storedRunTime) {
-      if (typeof storedRunTime === 'string') {
-        storedRunTime = parseInt(storedRunTime, 10);
-      }
-      setRunTime(storedRunTime);
-    }
-  }, []);
-  
-  const handleRunTimeChange = (event) => {
-    const runTime = parseInt(event.target.value, 10);
-    setRunTime(runTime);
-    localStorage.setItem(STORE_RUNTIME, runTime);
-  };
+  const NotificationsSystem = useNotificationsSystem();  
+  const [pourTime, setPourTime] = useState(1000);
 
   const handleStart = async () => {
     try {
-      await waterPump.start(runTime);
+      await waterPump.start(pourTime);
       NotificationsSystem.alert('Water pump started successfully!');
     } catch (error) {
       NotificationsSystem.alert('Error starting water pump: ' + error.message);
@@ -54,14 +37,7 @@ function App() {
       <NotificationsArea />
       <Form>
         <APIAddressField />
-        <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="2">
-            Run Time (ms):
-          </Form.Label>
-          <Col sm="10">
-            <Form.Control type="number" value={runTime} onChange={handleRunTimeChange} />
-          </Col>
-        </Form.Group>
+        <PourTimeField onChange={setPourTime} min={100} max={10000} />
         <Button variant="primary" onClick={handleStart}>Start</Button>{' '}
         <Button variant="secondary" onClick={handleStop}>Stop</Button>
       </Form>
