@@ -10,7 +10,7 @@ import APIAddressField from './components/APIAddressField';
 const STORE_RUNTIME = 'runTime';
 
 function App() {
-  const waterPumpCtx = useWaterPumpAPI();
+  const waterPump = useWaterPumpAPI().API;
   const [runTime, setRunTime] = useState(1000);
   const NotificationsSystem = useNotificationsSystem();
 
@@ -32,7 +32,7 @@ function App() {
 
   const handleStart = async () => {
     try {
-      await waterPumpCtx.API.start(runTime);
+      await waterPump.start(runTime);
       NotificationsSystem.alert('Water pump started successfully!');
     } catch (error) {
       NotificationsSystem.alert('Error starting water pump: ' + error.message);
@@ -41,7 +41,7 @@ function App() {
 
   const handleStop = async () => {
     try {
-      await waterPumpCtx.API.stop();
+      await waterPump.stop();
       NotificationsSystem.alert('Water pump stopped successfully!');
     } catch (error) {
       NotificationsSystem.alert('Error stopping water pump: ' + error.message);
