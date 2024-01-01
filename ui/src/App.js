@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Form, Button } from 'react-bootstrap';
-import { CWaterPumpAPI } from './api/CWaterPumpAPI.js';
-import { useNotificationsSystem } from './contexts/NotificationsContext.js';
 import './App.css';
-import NotificationsArea from './components/NotificationsArea.js';
+import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 
-const STORE_API = 'apiAddress';
+import { useWaterPumpAPI } from './contexts/WaterPumpAPIContext';
+import { useNotificationsSystem } from './contexts/NotificationsContext.js';
+import NotificationsArea from './components/NotificationsArea.js';
+import APIAddressField from './components/APIAddressField';
+
 const STORE_RUNTIME = 'runTime';
 
 function App() {
-  const [apiAddress, setApiAddress] = useState('');
+  const waterPumpCtx = useWaterPumpAPI();
   const [runTime, setRunTime] = useState(1000);
   const NotificationsSystem = useNotificationsSystem();
 
   useEffect(() => {
-    const storedApiAddress = localStorage.getItem(STORE_API);
-    if (storedApiAddress) setApiAddress(storedApiAddress);
-
     let storedRunTime = localStorage.getItem(STORE_RUNTIME);
     if (storedRunTime) {
       if (typeof storedRunTime === 'string') {
@@ -25,18 +23,16 @@ function App() {
       setRunTime(storedRunTime);
     }
   }, []);
-
-  const waterPumpAPI = React.useMemo(() => {
-    let url = apiAddress;
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      url = 'http://' + url;
-    }
-    return new CWaterPumpAPI({ URL: url });
-  }, [apiAddress]);
+  
+  const handleRunTimeChange = (event) => {
+    const runTime = parseInt(event.target.value, 10);
+    setRunTime(runTime);
+    localStorage.setItem(STORE_RUNTIME, runTime);
+  };
 
   const handleStart = async () => {
     try {
-      await waterPumpAPI.start(runTime);
+      await waterPumpCtx.API.start(runTime);
       NotificationsSystem.alert('Water pump started successfully!');
     } catch (error) {
       NotificationsSystem.alert('Error starting water pump: ' + error.message);
@@ -45,23 +41,11 @@ function App() {
 
   const handleStop = async () => {
     try {
-      await waterPumpAPI.stop();
+      await waterPumpCtx.API.stop();
       NotificationsSystem.alert('Water pump stopped successfully!');
     } catch (error) {
       NotificationsSystem.alert('Error stopping water pump: ' + error.message);
     }
-  };
-
-  const handleRunTimeChange = (event) => {
-    const runTime = parseInt(event.target.value, 10);
-    setRunTime(runTime);
-    localStorage.setItem(STORE_RUNTIME, runTime);
-  };
-
-  const handleApiAddressChange = (event) => {
-    const apiAddress = event.target.value;
-    setApiAddress(apiAddress);
-    localStorage.setItem(STORE_API, apiAddress);
   };
 
   return (
@@ -69,14 +53,7 @@ function App() {
       <h1>Tea System UI</h1>
       <NotificationsArea />
       <Form>
-        <Form.Group as={Row} className="mb-3">
-          <Form.Label column sm="2">
-            API Address:
-          </Form.Label>
-          <Col sm="10">
-            <Form.Control type="text" value={apiAddress} onChange={handleApiAddressChange} />
-          </Col>
-        </Form.Group>
+        <APIAddressField />
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="2">
             Run Time (ms):
