@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import { CWaterPumpAPI } from './api/CWaterPumpAPI.js';
+import { useNotificationsSystem } from './contexts/NotificationsContext.js';
 import './App.css';
+import NotificationsArea from './components/NotificationsArea.js';
 
 const STORE_API = 'apiAddress';
 const STORE_RUNTIME = 'runTime';
@@ -9,8 +11,7 @@ const STORE_RUNTIME = 'runTime';
 function App() {
   const [apiAddress, setApiAddress] = useState('');
   const [runTime, setRunTime] = useState(1000);
-  const [alertMessage, setAlertMessage] = useState('');
-  const [showAlert, setShowAlert] = useState(false);
+  const NotificationsSystem = useNotificationsSystem();
 
   useEffect(() => {
     const storedApiAddress = localStorage.getItem(STORE_API);
@@ -36,22 +37,18 @@ function App() {
   const handleStart = async () => {
     try {
       await waterPumpAPI.start(runTime);
-      setAlertMessage('Water pump started successfully!');
-      setShowAlert(true);
+      NotificationsSystem.alert('Water pump started successfully!');
     } catch (error) {
-      setAlertMessage('Error starting water pump: ' + error.message);
-      setShowAlert(true);
+      NotificationsSystem.alert('Error starting water pump: ' + error.message);
     }
   };
 
   const handleStop = async () => {
     try {
       await waterPumpAPI.stop();
-      setAlertMessage('Water pump stopped successfully!');
-      setShowAlert(true);
+      NotificationsSystem.alert('Water pump stopped successfully!');
     } catch (error) {
-      setAlertMessage('Error stopping water pump: ' + error.message);
-      setShowAlert(true);
+      NotificationsSystem.alert('Error stopping water pump: ' + error.message);
     }
   };
 
@@ -70,7 +67,7 @@ function App() {
   return (
     <Container className="App">
       <h1>Tea System UI</h1>
-      {showAlert && <Alert variant="info" onClose={() => setShowAlert(false)} dismissible>{alertMessage}</Alert>}
+      <NotificationsArea />
       <Form>
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="2">
