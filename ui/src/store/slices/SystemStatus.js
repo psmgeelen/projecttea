@@ -10,9 +10,8 @@ const systemStatus = {
     running: false,
     timeLeft: 0,
   },
-  updated: new Date(),
+  updated: Date.now(),
 };
-// NOTE: SystemStatusSlice can't store unseralizable data, such as Date objects!
 
 // slice for system status
 export const SystemStatusSlice = createSlice({
