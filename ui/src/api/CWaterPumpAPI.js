@@ -1,8 +1,18 @@
 import axios from 'axios';
 
+// helper function to preprocess the API host
+function preprocessApiHost(apiHost) {
+  let url = apiHost;
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = 'http://' + url;
+  }
+  if (!url.endsWith('/')) url += '/';
+  return url;
+}
+
 class CWaterPumpAPI {
   constructor({ client=null, URL }) {
-    this._client = client || axios.create({ baseURL: URL });
+    this._client = client || axios.create({ baseURL: preprocessApiHost(URL) });
   }
 
   async start(runTimeMs) {

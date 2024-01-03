@@ -1,13 +1,11 @@
 import React from 'react';
 import { Row, Col, Form } from 'react-bootstrap';
-import { useWaterPumpAPI } from '../contexts/WaterPumpAPIContext';
+import { connect } from 'react-redux';
+import { updateAPIHost } from '../store/slices/UI';
 
-function APIAddressField() {
-  const waterPumpCtx = useWaterPumpAPI();
-
+export function APIAddressFieldComponent({ apiHost, onChange }) {
   const handleApiAddressChange = (event) => {
-    const apiAddress = event.target.value;
-    waterPumpCtx.bindApiHost(apiAddress);
+    onChange(event.target.value);
   };
 
   return (
@@ -16,10 +14,20 @@ function APIAddressField() {
         API Address:
       </Form.Label>
       <Col sm="10">
-        <Form.Control type="text" value={waterPumpCtx.apiHost} onChange={handleApiAddressChange} />
+        <Form.Control
+          type="text" placeholder="Enter API Address"
+          value={apiHost}
+          onChange={handleApiAddressChange}
+        />
       </Col>
     </Form.Group>
   );
 }
 
-export default APIAddressField;
+export default connect(
+  (state) => ({
+    apiHost: state.UI.apiHost
+  }), {
+    onChange: updateAPIHost
+  }
+)(APIAddressFieldComponent);
