@@ -1,10 +1,11 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { Button } from 'react-bootstrap';
 
 import { useWaterPumpAPI } from '../contexts/WaterPumpAPIContext';
 import { useNotificationsSystem } from '../contexts/NotificationsContext.js';
 
-function SystemControls({ pouringTime, systemStatus }) {
+export function SystemControlsComponent({ pouringTime, systemStatus }) {
   const waterPump = useWaterPumpAPI().API;
   const NotificationsSystem = useNotificationsSystem();
 
@@ -39,4 +40,9 @@ function SystemControls({ pouringTime, systemStatus }) {
   );
 }
 
-export default SystemControls;
+export default connect(
+  state => ({
+    pouringTime: state.UI.pouringTime,
+    systemStatus: state.systemStatus,
+  }), []
+)(SystemControlsComponent);

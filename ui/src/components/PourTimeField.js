@@ -1,26 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Form, Row, Col } from 'react-bootstrap';
+import { connect } from 'react-redux';
+import { updatePouringTime } from '../store/slices/UI';
 
-const STORE_POURRTIME = 'pourTime';
-
-function PourTimeField({ onChange, min, max }) {
-  const [pourTime, setPourTime] = useState(1000);
-
-  useEffect(() => {
-    const time = localStorage.getItem(STORE_POURRTIME);
-    if (time) setPourTime(parseInt(time, 10));
-  }, []); // on mount
-  // call onChange when pourTime changes
-  useEffect(() => onChange(pourTime), [pourTime, onChange]);
-
+export function PourTimeFieldComponent({ onChange, min, max, value }) {
   const handleChange = (event) => {
     let newTime = parseInt(event.target.value, 10);
     if (isNaN(newTime)) return;
     if (newTime < min) newTime = min;
     if (max < newTime) newTime = max;
 
-    setPourTime(newTime);
-    localStorage.setItem(STORE_POURRTIME, newTime);
+    onChange(newTime);
   };
 
   return (
@@ -29,10 +19,18 @@ function PourTimeField({ onChange, min, max }) {
         Run Time (ms):
       </Form.Label>
       <Col sm="10">
-        <Form.Control type="number" value={pourTime} onChange={handleChange} />
+      <Form.Control type="number" value={value} onChange={handleChange} />
       </Col>
     </Form.Group>
   );
 }
 
-export default PourTimeField;
+export default connect(
+  state => ({
+    min: 100,
+    max: state.systemStatus?.waterThreshold,
+    value: state.UI.pouringTime,
+  }), {
+    onChange: updatePouringTime,
+  }
+)(PourTimeFieldComponent);

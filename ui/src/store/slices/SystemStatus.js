@@ -12,6 +12,7 @@ const systemStatus = {
   },
   updated: new Date(),
 };
+// NOTE: SystemStatusSlice can't store unseralizable data, such as Date objects!
 
 // slice for system status
 export const SystemStatusSlice = createSlice({
