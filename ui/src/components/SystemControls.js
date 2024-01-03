@@ -4,7 +4,7 @@ import { Button } from 'react-bootstrap';
 import { useWaterPumpAPI } from '../contexts/WaterPumpAPIContext';
 import { useNotificationsSystem } from '../contexts/NotificationsContext.js';
 
-function SystemControls({ pouringTime }) {
+function SystemControls({ pouringTime, systemStatus }) {
   const waterPump = useWaterPumpAPI().API;
   const NotificationsSystem = useNotificationsSystem();
 
@@ -26,12 +26,13 @@ function SystemControls({ pouringTime }) {
     }
   };
 
+  const isRunning = systemStatus.pump.running;
   return (
     <>
-      <Button variant="primary" onClick={handleStart}>
+      <Button variant="primary" onClick={handleStart} disabled={isRunning}>
         Start
       </Button>{' '}
-      <Button variant="secondary" onClick={handleStop}>
+      <Button variant="secondary" onClick={handleStop} disabled={!isRunning}>
         Stop
       </Button>
     </>
