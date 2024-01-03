@@ -6,8 +6,8 @@ class CWaterPumpAPI {
   }
 
   async start(runTimeMs) {
-    const response = await this._client.get('/start', {
-      runTimeMs: runTimeMs
+    const response = await this._client.get('/pour_tea', {
+      milliseconds: runTimeMs,
     });
     return response.data;
   }
