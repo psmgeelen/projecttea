@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
+import { connect } from 'react-redux';
 
 // TODO: Update time since last update every second,
 //       currently it only updates when the status changes
@@ -22,7 +23,7 @@ function _systemStatus(status) {
   );
 }
 
-function SystemStatusArea({ status }) {
+export function SystemStatusAreaComponent({ status }) {
   return (
     <Card>
       <Card.Body>
@@ -35,4 +36,8 @@ function SystemStatusArea({ status }) {
   );
 }
 
-export default SystemStatusArea;
+export default connect(
+  state => ({
+    status: state.systemStatus
+  }), []
+)(SystemStatusAreaComponent);
