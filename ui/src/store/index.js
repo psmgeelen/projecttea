@@ -1,8 +1,11 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
+import { persistStore, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
 
 // slices
 import { ALL_APP_SLICES } from "./slices";
+import { PersistGate } from "redux-persist/integration/react";
 
 // listeners
 // import { eventsListener } from "./listeners";
@@ -34,18 +37,31 @@ function buildAppStore(preloadedState) {
 // preloadedState is an optional parameter that allows you to pass in an initial state for the store.
 const AppStore = ({ children, preloadedState = {}, returnStore = false }) => {
   const { reducers, state } = buildAppStore(preloadedState);
+  // create a persisted reducer
+  const persistedReducer = persistReducer(
+    {
+      key: 'root',
+      storage,
+      whitelist: ['UI']
+    },
+    combineReducers(reducers)
+  );
+
   const store = configureStore({
-    reducer: reducers,
+    reducer: persistedReducer,
     preloadedState: state,
-    // middleware: (getDefaultMiddleware) => getDefaultMiddleware().prepend(eventsListener.middleware),
   });
+  const persistor = persistStore(store);
+
   const provider = (
     <Provider store={store}>
-      {children}
+      <PersistGate loading={null} persistor={persistor}>
+        {children}
+      </PersistGate>
     </Provider>
   );
 
-  if (returnStore) return { store, provider };
+  if (returnStore) return { store, provider, persistor };
   return provider;
 };
 

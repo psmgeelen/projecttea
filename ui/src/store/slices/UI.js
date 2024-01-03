@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const INITIAL_STATE = {
-  pouringTime: 0,
+  pouringTime: 1000,
 };
 // slice for system status
 export const UISlice = createSlice({
