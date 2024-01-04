@@ -14,19 +14,11 @@ function preprocessSystemStatus(systemStatus) {
   systemStatus.updated = Date.now();
   return systemStatus;
 }
-// TODO: Replace this with a real system status
-const systemStatus = preprocessSystemStatus({
-  "water threshold": 1234,
-  "pump": {
-    "running": false,
-    "time left": 0
-  }
-});
 
 // slice for system status
 export const SystemStatusSlice = createSlice({
   name: 'systemStatus',
-  initialState: systemStatus,
+  initialState: null,
   reducers: {
     updateSystemStatus(state, action) {
       return preprocessSystemStatus(action.payload);

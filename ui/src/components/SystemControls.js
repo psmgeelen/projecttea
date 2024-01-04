@@ -5,6 +5,7 @@ import { Button } from 'react-bootstrap';
 import { useWaterPumpAPI } from '../contexts/WaterPumpAPIContext';
 import { useNotificationsSystem } from '../contexts/NotificationsContext.js';
 
+// TODO: convert handlers to redux actions. They should update the system status.
 export function SystemControlsComponent({ pouringTime, systemStatus }) {
   const waterPump = useWaterPumpAPI().API;
   const NotificationsSystem = useNotificationsSystem();
