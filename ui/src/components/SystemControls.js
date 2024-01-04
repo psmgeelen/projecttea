@@ -4,16 +4,17 @@ import { Button } from 'react-bootstrap';
 
 import { useWaterPumpAPI } from '../contexts/WaterPumpAPIContext';
 import { useNotificationsSystem } from '../contexts/NotificationsContext.js';
+import { startPump, stopPump } from '../store/slices/SystemStatus.js';
 
-// TODO: convert handlers to redux actions. They should update the system status.
-export function SystemControlsComponent({ pouringTime, systemStatus }) {
-  const waterPump = useWaterPumpAPI().API;
+export function SystemControlsComponent({
+  pouringTime, systemStatus, startPump, stopPump
+}) {
+  const api = useWaterPumpAPI().API;
   const NotificationsSystem = useNotificationsSystem();
 
   const handleStart = async () => {
     try {
-      await waterPump.start(pouringTime);
-      NotificationsSystem.alert('Water pump started successfully!');
+      await startPump({ api , pouringTime });
     } catch (error) {
       NotificationsSystem.alert('Error starting water pump: ' + error.message);
     }
@@ -21,8 +22,7 @@ export function SystemControlsComponent({ pouringTime, systemStatus }) {
 
   const handleStop = async () => {
     try {
-      await waterPump.stop();
-      NotificationsSystem.alert('Water pump stopped successfully!');
+      await stopPump({ api });
     } catch (error) {
       NotificationsSystem.alert('Error stopping water pump: ' + error.message);
     }
@@ -45,5 +45,5 @@ export default connect(
   state => ({
     pouringTime: state.UI.pouringTime,
     systemStatus: state.systemStatus,
-  }), []
+  }), { startPump, stopPump }
 )(SystemControlsComponent);
