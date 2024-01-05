@@ -28,6 +28,13 @@ CommandProcessor commandProcessor(
   waterPump
 );
 
+void withExtraHeaders(Response &res) {
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
+  res.set("Access-Control-Allow-Headers", "Content-Type");
+  res.set("Content-Type", "application/json");
+}
+
 void setup() {
   Serial.begin(9600);
   waterPump->setup();
@@ -37,16 +44,19 @@ void setup() {
       req.query("milliseconds", milliseconds, 64);
       
       const auto response = commandProcessor.pour_tea(milliseconds);
+      withExtraHeaders(res);
       res.print(response.c_str());
     });
     // stop water pump
     app.get("/stop", [](Request &req, Response &res) {
       const auto response = commandProcessor.stop();
+      withExtraHeaders(res);
       res.print(response.c_str());
     });
     // get system status
     app.get("/status", [](Request &req, Response &res) {
       const auto response = commandProcessor.status();
+      withExtraHeaders(res);
       res.print(response.c_str());
     });
   });
