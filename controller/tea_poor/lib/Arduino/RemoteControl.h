@@ -14,6 +14,7 @@ public:
   ~RemoteControl();
   void setup(RemoteControlRoutesCallback routes);
   void process();
+  String asJSONString() const;
 private:
   const String _SSID;
   const String _SSIDPassword;

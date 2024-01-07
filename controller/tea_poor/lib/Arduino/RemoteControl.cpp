@@ -96,3 +96,11 @@ void RemoteControl::process() {
     client.stop();
   }
 }
+
+String RemoteControl::asJSONString() const {
+  String result = "{";
+  result += "\"SSID\": \"" + _SSID + "\",";
+  result += "\"signal strength\": " + String(WiFi.RSSI());
+  result += "}";
+  return result;
+}

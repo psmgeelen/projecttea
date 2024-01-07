@@ -1,54 +1,68 @@
 #include <Arduino.h>
+#include <memory>
 #include <WaterPumpController.h>
+#include <WaterPumpScheduler.h>
 #include <RemoteControl.h>
+#include <CommandProcessor.h>
+#include "secrets.h"
+
+#include <sstream>
+#include <ArduinoEnvironment.h>
+
+IEnvironmentPtr env = std::make_shared<ArduinoEnvironment>();
 
 // Setting up water pump
-WaterPumpController waterPumpController(12, 9, 3);
-// Just for safety reasons, we don't want to pour tea for too long
-// Their is no reason to make it configurable and add unnecessary complexity
-const int WATER_PUMP_SAFE_THRESHOLD = 10 * 1000;
-
-// setting up remote control
-RemoteControl remoteControl(
-  "MyWiFiNetwork", // network name/SSID
-  "VerySecurePassword" // network password
+auto waterPump = std::make_shared<WaterPumpScheduler>(
+  std::make_shared<WaterPumpController>(
+    WATER_PUMP_DIRECTION_PIN, WATER_PUMP_BRAKE_PIN, WATER_PUMP_POWER_PIN
+  )
 );
 
-bool isValidIntNumber(const char *str, const int maxValue, const int minValue=0) {
-  if (strlen(str) <= 0) return false;
-  const int value = atoi(str);
-  if (value < minValue) return false;
-  if (maxValue <= value) return false;
-  return true;
-}
+// setting up remote control
+RemoteControl remoteControl(WIFI_SSID, WIFI_PASSWORD);
 
-void pour_tea(Request &req, Response &res) {
-  char milliseconds[64];
-  req.query("milliseconds", milliseconds, 64);
-  if (!isValidIntNumber(milliseconds, WATER_PUMP_SAFE_THRESHOLD)) {
-    res.println("Please specify amount of milliseconds in query parameter; pour_tea?milliseconds=10 e.g.");
-    res.print("Maximal allowed time is: ");
-    res.println(WATER_PUMP_SAFE_THRESHOLD);
-    return;
-  }
-  const int pouringDelayMs = atoi(milliseconds);
-  // actually pour tea
-  waterPumpController.pour(pouringDelayMs);
+// build command processor
+CommandProcessor commandProcessor(
+  WATER_PUMP_SAFE_THRESHOLD,
+  env,
+  waterPump
+);
 
-  // Serial.println(req.JSON());
-  res.print("Poured Tea in: ");
-  res.print(pouringDelayMs);
-  res.print(" milliseconds!");
+void withExtraHeaders(Response &res) {
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
+  res.set("Access-Control-Allow-Headers", "Content-Type");
+  res.set("Content-Type", "application/json");
 }
 
 void setup() {
   Serial.begin(9600);
-  waterPumpController.setup();
+  waterPump->setup();
   remoteControl.setup([](Application &app) {
-    app.get("/pour_tea", pour_tea);
+    app.get("/pour_tea", [](Request &req, Response &res) {
+      char milliseconds[64];
+      req.query("milliseconds", milliseconds, 64);
+      
+      const auto response = commandProcessor.pour_tea(milliseconds);
+      withExtraHeaders(res);
+      res.print(response.c_str());
+    });
+    // stop water pump
+    app.get("/stop", [](Request &req, Response &res) {
+      const auto response = commandProcessor.stop();
+      withExtraHeaders(res);
+      res.print(response.c_str());
+    });
+    // get system status
+    app.get("/status", [](Request &req, Response &res) {
+      const auto response = commandProcessor.status();
+      withExtraHeaders(res);
+      res.print(response.c_str());
+    });
   });
 }
 
 void loop() {
+  waterPump->tick(millis());
   remoteControl.process();
 };
