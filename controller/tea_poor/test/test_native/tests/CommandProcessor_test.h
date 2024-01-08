@@ -46,6 +46,7 @@ TEST(CommandProcessor, status) {
   CommandProcessor commandProcessor(123, env, waterPump);
   const auto response = commandProcessor.status();
   ASSERT_EQ(response, "{"
+    "\"time\": 0, "
     "\"water threshold\": 123, "
     "\"pump\": {"
     "  \"running\": false, "
@@ -69,6 +70,7 @@ TEST(CommandProcessor, status_running) {
   
   const auto response = commandProcessor.status();
   ASSERT_EQ(response, "{"
+    "\"time\": 123, "
     "\"water threshold\": 12345, "
     "\"pump\": {"
     "  \"running\": true, "
