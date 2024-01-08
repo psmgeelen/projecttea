@@ -29,6 +29,7 @@ function preprocessResponse(response) {
   response.updated = Date.now();
   // difference between current time on client and time on device
   response.timeDelta = response.updated - response.time;
+  // TODO: add field response.pump.estimatedEndTime
   return response;
 }
 

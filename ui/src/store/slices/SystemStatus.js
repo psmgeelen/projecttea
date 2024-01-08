@@ -19,7 +19,7 @@ export const stopPump = createAsyncThunk(
 
 // slice for system status
 const bindStatus = (state, action) => {
-  return preprocessSystemStatus(action.payload);
+  return action.payload;
 };
 
 export const SystemStatusSlice = createSlice({
