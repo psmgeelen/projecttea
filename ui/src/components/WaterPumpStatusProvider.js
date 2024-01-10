@@ -1,8 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { updateSystemStatus } from '../store/slices/SystemStatus';
-import { useWaterPumpAPI } from './WaterPumpAPIContext';
-import { useNotificationsSystem } from './NotificationsContext';
+import { useWaterPumpAPI } from '../contexts/WaterPumpAPIContext';
+import { useNotificationsSystem } from '../contexts/NotificationsContext';
 
 const FETCH_INTERVAL = 5000;
 const CHECK_INTERVAL = Math.round(FETCH_INTERVAL / 10);
