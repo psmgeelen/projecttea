@@ -19,14 +19,14 @@ describe('CWaterPumpAPIImpl', () => {
     await expect(apiCall(api)).rejects.toThrow(errorMessage);
   }
 
-  async function shouldBeCalledWith(apiCall, url, params=null) {
+  async function shouldBeCalledWith(apiCall, url, params) {
     const mockClient = { get: jest.fn() };
     mockClient.get.mockResolvedValue({ data: DUMMY_STATUS });
 
     const api = new CWaterPumpAPIImpl({ client: mockClient });
     await apiCall(api);
 
-    expect(mockClient.get).toHaveBeenCalledWith(url, params);
+    expect(mockClient.get).toHaveBeenCalledWith(url, { params });
   }
 
   async function shouldRethrowError(apiCall) {

@@ -13,21 +13,21 @@ class CWaterPumpAPIImpl {
 
   async start(runTimeMs) {
     const { response: { data }, requestTime } = await this._execute(
-      async () => await this._client.get('/pour_tea', { milliseconds: runTimeMs })
+      async () => await this._client.get('/pour_tea', { params: { milliseconds: runTimeMs } })
     );
     return this.preprocessResponse({ response: data, requestTime });
   }
 
   async stop() {
     const { response: { data }, requestTime } = await this._execute(
-      async () => await this._client.get('/stop', {})
+      async () => await this._client.get('/stop', { params: {} })
     );
     return this.preprocessResponse({ response: data, requestTime });
   }
 
   async status() {
     const { response: { data }, requestTime } = await this._execute(
-      async () => await this._client.get('/status', {})
+      async () => await this._client.get('/status', { params: {} })
     );
     return this.preprocessResponse({ response: data, requestTime });
   }
@@ -36,7 +36,6 @@ class CWaterPumpAPIImpl {
   preprocessResponse({ response, requestTime }) {
     if(null == response) return null;
     if('error' in response) {
-      // TODO: handle errors in slice/SystemStatus.js
       throw new Error(response.error);
     }
     // make a deep copy of response
