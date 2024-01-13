@@ -18,9 +18,6 @@ auto waterPump = std::make_shared<WaterPumpScheduler>(
   )
 );
 
-// setting up remote control
-RemoteControl remoteControl(WIFI_SSID, WIFI_PASSWORD);
-
 // build command processor
 CommandProcessor commandProcessor(
   WATER_PUMP_SAFE_THRESHOLD,
@@ -35,10 +32,17 @@ void withExtraHeaders(Response &res) {
   res.set("Content-Type", "application/json");
 }
 
-void setup() {
-  Serial.begin(9600);
-  waterPump->setup();
-  remoteControl.setup([](Application &app) {
+RemoteControl remoteControl(
+  // lambda function to setup network
+  [](RemoteControl &remoteControl, Application &app) {
+    // connect to WiFi
+    // set static IP address, if defined in configs
+    #ifdef WIFI_IP_ADDRESS
+    WiFi.config(WIFI_IP_ADDRESS);
+    #endif
+    
+    remoteControl.connectTo(WIFI_SSID, WIFI_PASSWORD);
+    // setup routes
     app.get("/pour_tea", [](Request &req, Response &res) {
       char milliseconds[64];
       req.query("milliseconds", milliseconds, 64);
@@ -59,7 +63,13 @@ void setup() {
       withExtraHeaders(res);
       res.print(response.c_str());
     });
-  });
+  }
+);
+
+void setup() {
+  Serial.begin(9600);
+  waterPump->setup();
+  remoteControl.setup();
 }
 
 void loop() {
