@@ -45,7 +45,7 @@ std::string CommandProcessor::status() {
 }
 
 std::string CommandProcessor::pour_tea(const char *milliseconds) {
-  if (!isValidIntNumber(milliseconds, _waterPumpSafeThreshold)) {
+  if (!isValidIntNumber(milliseconds, _waterPumpSafeThreshold + 1)) {
     // send error message as JSON
     return std::string("{ \"error\": \"invalid milliseconds value\" }");
   }

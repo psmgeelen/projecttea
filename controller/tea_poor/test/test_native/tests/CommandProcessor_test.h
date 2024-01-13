@@ -3,21 +3,28 @@
 #include "mocks/FakeWaterPumpSchedulerAPI.h"
 #include "mocks/FakeEnvironment.h"
 
+const auto INVALID_TIME_ERROR_MESSAGE = "{ \"error\": \"invalid milliseconds value\" }";
 // test that pour_tea() method returns error message if milliseconds:
 // - greater than threshold
 // - less than 0
 // - empty string
 // - not a number
 TEST(CommandProcessor, pour_tea_invalid_milliseconds) {
-  const auto EXPECTED_ERROR_MESSAGE = "{ \"error\": \"invalid milliseconds value\" }";
   CommandProcessor commandProcessor(123, nullptr, nullptr);
+  ASSERT_EQ(commandProcessor.pour_tea("1234"), INVALID_TIME_ERROR_MESSAGE);
+  ASSERT_EQ(commandProcessor.pour_tea("-1"), INVALID_TIME_ERROR_MESSAGE);
+  ASSERT_EQ(commandProcessor.pour_tea(""), INVALID_TIME_ERROR_MESSAGE);
+  ASSERT_EQ(commandProcessor.pour_tea("abc"), INVALID_TIME_ERROR_MESSAGE);
+}
 
-  // array of invalid parameters
-  const char *PARAMS[] = { "1234", "-1", "", "abc" };
-  for (auto param : PARAMS) {
-    const auto response = commandProcessor.pour_tea(param);
-    ASSERT_EQ(response, EXPECTED_ERROR_MESSAGE);
-  }
+// for simplicity of the UI, we should accept as valid 0 and exactly threshold value
+TEST(CommandProcessor, pour_tea_valid_boundary_values) {
+  auto env = std::make_shared<FakeEnvironment>();
+  auto waterPump = std::make_shared<FakeWaterPumpSchedulerAPI>();
+  CommandProcessor commandProcessor(123, env, waterPump);
+
+  ASSERT_NE(commandProcessor.pour_tea("0"), INVALID_TIME_ERROR_MESSAGE);
+  ASSERT_NE(commandProcessor.pour_tea("123"), INVALID_TIME_ERROR_MESSAGE);
 }
 
 // test that start pouring tea by calling pour_tea() method and its stops after T milliseconds
