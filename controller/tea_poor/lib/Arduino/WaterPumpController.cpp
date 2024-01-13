@@ -12,7 +12,9 @@ WaterPumpController::WaterPumpController(int directionPin, int brakePin, int pow
 WaterPumpController::~WaterPumpController() {}
 
 void WaterPumpController::setup() {
-  pinMode(_directionPin, OUTPUT);
+  // NOTE: we use one-directional motor, so we can't use direction pin
+  //       but I keep it here for future reference
+  // pinMode(_directionPin, OUTPUT);
   pinMode(_brakePin, OUTPUT);
   pinMode(_powerPin, OUTPUT);
   stop();
