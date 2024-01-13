@@ -13,8 +13,19 @@ function preprocessApiHost(apiHost) {
 
 class CWaterPumpAPI {
   constructor({ URL }) {
+    // quick hack to add headers to axios client
+    // this is needed to prevent CORS error
+    const axiosClient = axios.create({ baseURL: preprocessApiHost(URL) });
+    const fakeClient = {
+      get: async (path, params) => {
+        params = params || {};
+        params.headers = params.headers || {};
+        params.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+        return await axiosClient.get(path, params);
+      }
+    };
     this._impl = new CWaterPumpAPIImpl({
-      client: axios.create({ baseURL: preprocessApiHost(URL) }),
+      client: fakeClient,
     });
   }
 
