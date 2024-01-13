@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { CWaterPumpAPIImpl } from './CWaterPumpAPIImpl.js';
 
 // helper function to preprocess the API host
 function preprocessApiHost(apiHost) {
@@ -11,26 +12,15 @@ function preprocessApiHost(apiHost) {
 }
 
 class CWaterPumpAPI {
-  constructor({ client=null, URL }) {
-    this._client = client || axios.create({ baseURL: preprocessApiHost(URL) });
-  }
-
-  async start(runTimeMs) {
-    const response = await this._client.get('/pour_tea', {
-      milliseconds: runTimeMs,
+  constructor({ URL }) {
+    this._impl = new CWaterPumpAPIImpl({
+      client: axios.create({ baseURL: preprocessApiHost(URL) }),
     });
-    return response.data;
   }
 
-  async stop() {
-    const response = await this._client.get('/stop');
-    return response.data;
-  }
-
-  async status() {
-    const response = await this._client.get('/status');
-    return response.data;
-  }
+  async start(runTimeMs) { return await this._impl.start(runTimeMs); }
+  async stop() { return await this._impl.stop(); }
+  async status() { return await this._impl.status(); }
 }
 
 export default CWaterPumpAPI;

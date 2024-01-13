@@ -1,19 +1,23 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { Alert } from 'react-bootstrap';
-import { useNotificationsSystem } from '../contexts/NotificationsContext';
+import { NotificationsSystemActions } from '../store/slices/Notifications';
 
-function NotificationsArea() {
-  const NotificationsSystem = useNotificationsSystem();
-  const { currentNotifications } = NotificationsSystem;
-  if(!currentNotifications) return null;
-
-  const hideNotifications = () => { NotificationsSystem.clear(); };
+function NotificationsArea({ hasNotifications, message, clearNotifications }) {
+  if(!hasNotifications) return null;
 
   return (
-    <Alert variant="info" onClose={hideNotifications} dismissible>
-      {currentNotifications.message}
+    <Alert variant="info" onClose={clearNotifications} dismissible>
+      {message}
     </Alert>
   );
 }
 
-export default NotificationsArea;
+export default connect(
+  (state) => ({ 
+    hasNotifications: state.notifications.currentNotifications != null,
+    message: state.notifications.currentNotifications?.message
+  }), {
+    clearNotifications: NotificationsSystemActions.clear
+  }
+)(NotificationsArea);

@@ -1,25 +1,7 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
 import { connect } from 'react-redux';
-
-// time elapsed since last update
-function TimeElapsedComponent({ updated }) {
-  const [diffString, setDiffString] = React.useState('');  
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      const now = new Date();
-      const diff = now - updated;
-      const newDiffString = new Date(diff).toISOString().substr(11, 8);
-      setDiffString(newDiffString);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [updated]);
-
-  return (
-    <span>{diffString}</span>
-  );
-}
+import TimerArea from '../components/TimerArea';
 
 function _systemStatus(status) {  
   if (null === status) {
@@ -30,7 +12,7 @@ function _systemStatus(status) {
   return (
     <>
       <strong>Time since last update:</strong>{' '}
-        <TimeElapsedComponent updated={status.updated} />
+        <TimerArea startTime={status.updated} />
       <br />
       <strong>Pump Running:</strong> {pump.running ? "Yes" : "No"}<br />
       <strong>Time Left:</strong> {pump.timeLeft} ms

@@ -1,15 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { updateSystemStatus } from '../store/slices/SystemStatus';
-import { useWaterPumpAPI } from './WaterPumpAPIContext';
-import { useNotificationsSystem } from './NotificationsContext';
+import { useWaterPumpAPI } from '../contexts/WaterPumpAPIContext';
 
 const FETCH_INTERVAL = 5000;
 const CHECK_INTERVAL = Math.round(FETCH_INTERVAL / 10);
 
 function WaterPumpStatusProviderComoponent({ children, updateStatus, systemStatus }) {
   const { API } = useWaterPumpAPI();
-  const NotificationsSystem = useNotificationsSystem();
   const nextFetchTime = React.useRef(0);
 
   // Function to fetch water pump status
@@ -19,16 +17,10 @@ function WaterPumpStatusProviderComoponent({ children, updateStatus, systemStatu
       if(null == API) return;
       
       nextFetchTime.current = Number.MAX_SAFE_INTEGER; // prevent concurrent fetches
-      try {
-        const status = await API.status();
-        updateStatus(status);
-      } catch (error) {
-        NotificationsSystem.alert('Error fetching system status: ' + error.message);
-        updateStatus(null);
-      }
+      await updateStatus(API);
       nextFetchTime.current = Date.now() + FETCH_INTERVAL;
     },
-    [API, NotificationsSystem, updateStatus, nextFetchTime]
+    [API, updateStatus, nextFetchTime]
   );
 
   // Effect to start fetching periodically and when API changes
@@ -58,6 +50,5 @@ export default connect(
     systemStatus: state.systemStatus
   }), {
     updateStatus: updateSystemStatus
-  
   }
 )(WaterPumpStatusProviderComoponent);

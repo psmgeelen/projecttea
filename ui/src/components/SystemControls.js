@@ -3,29 +3,18 @@ import { connect } from 'react-redux';
 import { Button } from 'react-bootstrap';
 
 import { useWaterPumpAPI } from '../contexts/WaterPumpAPIContext';
-import { useNotificationsSystem } from '../contexts/NotificationsContext.js';
 import { startPump, stopPump } from '../store/slices/SystemStatus.js';
 
 export function SystemControlsComponent({
   pouringTime, systemStatus, startPump, stopPump
 }) {
   const api = useWaterPumpAPI().API;
-  const NotificationsSystem = useNotificationsSystem();
-
   const handleStart = async () => {
-    try {
-      await startPump({ api , pouringTime });
-    } catch (error) {
-      NotificationsSystem.alert('Error starting water pump: ' + error.message);
-    }
+    await startPump({ api , pouringTime });
   };
 
   const handleStop = async () => {
-    try {
-      await stopPump({ api });
-    } catch (error) {
-      NotificationsSystem.alert('Error stopping water pump: ' + error.message);
-    }
+    await stopPump({ api });
   };
 
   const isRunning = systemStatus.pump.running;
