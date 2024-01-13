@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Button } from 'react-bootstrap';
+import { Button, Container } from 'react-bootstrap';
 
 import { useWaterPumpAPI } from '../contexts/WaterPumpAPIContext';
 import { startPump, stopPump } from '../store/slices/SystemStatus.js';
@@ -19,14 +19,14 @@ export function SystemControlsComponent({
 
   const isRunning = systemStatus.pump.running;
   return (
-    <>
-      <Button variant="primary" onClick={handleStart} disabled={isRunning}>
+    <Container className="d-flex justify-content-center">
+      <Button variant="primary" onClick={handleStart} disabled={isRunning} size="lg">
         Start
-      </Button>{' '}
-      <Button variant="secondary" onClick={handleStop} disabled={!isRunning}>
+      </Button>
+      <Button variant="secondary" onClick={handleStop} disabled={!isRunning} className='ms-5' size="lg">
         Stop
       </Button>
-    </>
+    </Container>
   );
 }
 

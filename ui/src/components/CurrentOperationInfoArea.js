@@ -5,7 +5,7 @@ import TimerArea from "./TimerArea";
 export function CurrentOperationInfoAreaComponent({
   isRunning, estimatedEndTime
 }) {
-  if (!isRunning) return null;
+  estimatedEndTime = isRunning ? estimatedEndTime : null;
   return (
     <div className="countdown-area">
       <TimerArea startTime={null} endTime={estimatedEndTime} />

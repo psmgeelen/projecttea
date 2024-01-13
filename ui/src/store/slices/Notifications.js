@@ -7,7 +7,14 @@ export const NotificationsSlice = createSlice({
   },
   reducers: {
     alert: (state, action) => {
-      state.currentNotifications = action.payload;
+      const { message, ...rest } = action.payload;
+      // prepend HH:MM:SS to message
+      const now = new Date();
+      const time = now.toTimeString().split(' ')[0];
+      state.currentNotifications = {
+        message: `[${time}] ${message}`,
+        ...rest
+      };
     },
     clear: state => {
       state.currentNotifications = null;

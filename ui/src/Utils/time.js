@@ -10,11 +10,13 @@ function toTimeStr(diff) {
   return `${hoursStr}:${minutesStr}:${secondsStr}`;
 }
 
-export function timeBetweenAsString({endTime=null, startTime=null}) {
+export function timeBetweenAsString({endTime=null, startTime=null, bounded=false}) {
   if (null === startTime) startTime = new Date();
   if (null === endTime) endTime = new Date();
 
-  const diff = endTime - startTime; // in ms
+  let diff = endTime - startTime; // in ms
+  if (bounded && (diff < 0)) diff = 0;
+
   if (diff < 0) return '-' + toTimeStr(-diff);
   return toTimeStr(diff);
 }

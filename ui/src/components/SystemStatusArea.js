@@ -9,20 +9,22 @@ function _systemStatus(status) {
   }
   
   const pump = status.pump;
+  const color = pump.running ? "green" : "black";
   return (
     <>
       <strong>Time since last update:</strong>{' '}
         <TimerArea startTime={status.updated} />
-      <br />
-      <strong>Pump Running:</strong> {pump.running ? "Yes" : "No"}<br />
-      <strong>Time Left:</strong> {pump.timeLeft} ms
+      {' | '}
+      <span style={{color: color}}>
+        <strong>Pump Running:</strong> {pump.running ? "Yes" : "No"}
+      </span>
     </>
   );
 }
 
 export function SystemStatusAreaComponent({ status }) {
   return (
-    <Card>
+    <Card className="my-3">
       <Card.Body>
         <Card.Title>System Status</Card.Title>
         <Card.Text>

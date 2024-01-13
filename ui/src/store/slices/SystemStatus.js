@@ -63,7 +63,9 @@ export const SystemStatusSlice = createSlice({
     // on error, do not update system status
     builder.addCase(startPump.rejected, (state, action) => state);
     builder.addCase(stopPump.rejected, (state, action) => state);
-    builder.addCase(updateSystemStatus.rejected, (state, action) => state);
+    builder.addCase(updateSystemStatus.rejected, (state, action) => {
+      return null;
+    });
   }
 });
 
