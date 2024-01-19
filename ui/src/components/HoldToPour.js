@@ -31,7 +31,10 @@ export function HoldToPourComponent({ startPump, stopPump, interval }) {
     }
     // tick every 100ms
     const tid = setInterval(onTick, 100);
-    return () => { clearInterval(tid); }
+    return async () => {
+      clearInterval(tid);
+      if(isPouring) await stopPump();
+    };
   }, [onTick, isPouring, stopPump, lastPouringTime]);
 
   const handlePress = () => { setIsPouring(true); };
