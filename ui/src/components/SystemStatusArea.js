@@ -1,25 +1,7 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
 import { connect } from 'react-redux';
-
-// time elapsed since last update
-function TimeElapsedComponent({ updated }) {
-  const [diffString, setDiffString] = React.useState('');  
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      const now = new Date();
-      const diff = now - updated;
-      const newDiffString = new Date(diff).toISOString().substr(11, 8);
-      setDiffString(newDiffString);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [updated]);
-
-  return (
-    <span>{diffString}</span>
-  );
-}
+import TimerArea from '../components/TimerArea';
 
 function _systemStatus(status) {  
   if (null === status) {
@@ -27,20 +9,22 @@ function _systemStatus(status) {
   }
   
   const pump = status.pump;
+  const color = pump.running ? "green" : "black";
   return (
     <>
       <strong>Time since last update:</strong>{' '}
-        <TimeElapsedComponent updated={status.updated} />
-      <br />
-      <strong>Pump Running:</strong> {pump.running ? "Yes" : "No"}<br />
-      <strong>Time Left:</strong> {pump.timeLeft} ms
+        <TimerArea startTime={status.updated} />
+      {' | '}
+      <span style={{color: color}}>
+        <strong>Pump Running:</strong> {pump.running ? "Yes" : "No"}
+      </span>
     </>
   );
 }
 
 export function SystemStatusAreaComponent({ status }) {
   return (
-    <Card>
+    <Card className="my-3">
       <Card.Body>
         <Card.Title>System Status</Card.Title>
         <Card.Text>

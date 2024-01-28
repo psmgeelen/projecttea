@@ -38,16 +38,7 @@ void debugNetworkInfo() {
   Serial.println();
 }
 
-RemoteControl::RemoteControl(const char* SSID, const char* SSIDPassword) : 
-  _SSID(SSID), _SSIDPassword(SSIDPassword),
-  _server(80), _app()
-{
-}
-
-RemoteControl::~RemoteControl() {
-}
-
-void RemoteControl::_setupNetwork() {
+void verifyNetwork() {
   if (WiFi.status() == WL_NO_MODULE) {
     Serial.println("Communication with WiFi module failed!");
     while(true) delay(500);
@@ -59,15 +50,25 @@ void RemoteControl::_setupNetwork() {
     Serial.println(WIFI_FIRMWARE_LATEST_VERSION);
     Serial.println("Please upgrade your firmware.");
   }
+}
 
+RemoteControl::RemoteControl(const NetworkConnectCallback &onConnect) :
+  _onConnect(onConnect)
+{
+}
+
+RemoteControl::~RemoteControl() {
+}
+
+void RemoteControl::connectTo(const char* ssid, const char* password) {
   Serial.print("Connecting to ");
-  Serial.println(_SSID);
+  Serial.println(ssid);
   
   int attempts = 0;
   while (WL_CONNECTED != WiFi.status()) { // try to connect to the network
     attempts++;
-    Serial.println("Atempt to connect: " + String(attempts));
-    WiFi.begin(_SSID.c_str(), _SSIDPassword.c_str());
+    Serial.println("Attempt to connect: " + String(attempts));
+    WiFi.begin(ssid, password);
     for (int i = 0; i < 50; i++) { // wait for connection
       Serial.print(".");
       delay(500);
@@ -77,30 +78,33 @@ void RemoteControl::_setupNetwork() {
     Serial.println("Connection status: " + String(WiFi.status()));
   }
   Serial.println();
-
+  // successfully connected
   debugNetworkInfo();
 }
 
-void RemoteControl::setup(RemoteControlRoutesCallback routes) {
-  _setupNetwork();
-  routes(_app); // setup routes
+void RemoteControl::setup() { reconnect(); }
+
+void RemoteControl::reconnect() {
+  // reset everything
+  WiFi.disconnect();
+  verifyNetwork();
+  _app = Application(); // reset routes
+  _server = WiFiServer(80); // reset server
+  // reconnect
+  _onConnect(*this, _app);
   _server.begin();
 }
 
 void RemoteControl::process() {
-  // TODO: check if we still have a connection. If not, reconnect.
+  if(WL_CONNECTED != WiFi.status()) {
+    reconnect();
+    return; // wait for next tick, just to be sure that all is ok
+  }
+  ///////////////////////////
   WiFiClient client = _server.available();
 
   if (client.connected()) {
     _app.process(&client);
     client.stop();
   }
-}
-
-String RemoteControl::asJSONString() const {
-  String result = "{";
-  result += "\"SSID\": \"" + _SSID + "\",";
-  result += "\"signal strength\": " + String(WiFi.RSSI());
-  result += "}";
-  return result;
 }

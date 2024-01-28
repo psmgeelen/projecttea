@@ -1,2 +1,15 @@
 .App {
 }
+
+.countdown-area {
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+.hold-to-pour-image {
+  object-fit: contain;
+  width: 25%;
+  height: auto;
+}

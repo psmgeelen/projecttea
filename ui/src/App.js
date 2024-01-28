@@ -4,13 +4,14 @@ import { Container, Form } from 'react-bootstrap';
 import { connect } from 'react-redux';
 
 import NotificationsArea from './components/NotificationsArea.js';
-import APIAddressField from './components/APIAddressField';
-import PourTimeField from './components/PourTimeField';
-import SystemControls from './components/SystemControls';
-import SystemStatusArea from './components/SystemStatusArea';
+import APIAddressField from './components/APIAddressField.js';
+import PourTimeField from './components/PourTimeField.js';
+import SystemControls from './components/SystemControls.js';
+import SystemStatusArea from './components/SystemStatusArea.js';
+import CurrentOperationInfoArea from './components/CurrentOperationInfoArea.js';
+import HoldToPour from './components/HoldToPour.js';
 
 function App({ isConnected }) {
-  // TODO: Add a fake countdown timer of timeLeft
   return (
     <Container className="App">
       <h1>Tea System UI</h1>
@@ -21,7 +22,9 @@ function App({ isConnected }) {
         {isConnected ? (
           <>
             <PourTimeField />
+            <CurrentOperationInfoArea />
             <SystemControls />
+            <HoldToPour />
           </>
         ) : null}
       </Form>

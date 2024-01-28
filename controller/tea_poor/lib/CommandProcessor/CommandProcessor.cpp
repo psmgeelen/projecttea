@@ -20,12 +20,14 @@ bool isValidIntNumber(const char *str, const int maxValue, const int minValue=0)
 
 std::string CommandProcessor::status() {
   std::stringstream response;
+  const auto now = _env->time();
   response << "{";
+  // send current time in milliseconds to synchronize time on client side
+  response << "\"time\": " << now << ", ";
   // send water threshold
   response << "\"water threshold\": " << _waterPumpSafeThreshold << ", ";
   // send water pump status
   const auto waterPumpStatus = _waterPump->status();
-  const auto now = _env->time();
   const auto timeLeft = waterPumpStatus.isRunning ? waterPumpStatus.stopTime - now : 0;
   response 
     << "\"pump\": {"
@@ -43,7 +45,7 @@ std::string CommandProcessor::status() {
 }
 
 std::string CommandProcessor::pour_tea(const char *milliseconds) {
-  if (!isValidIntNumber(milliseconds, _waterPumpSafeThreshold)) {
+  if (!isValidIntNumber(milliseconds, _waterPumpSafeThreshold + 1)) {
     // send error message as JSON
     return std::string("{ \"error\": \"invalid milliseconds value\" }");
   }

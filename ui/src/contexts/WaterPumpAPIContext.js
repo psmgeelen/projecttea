@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { CWaterPumpAPI } from '../api/CWaterPumpAPI.js';
-import WaterPumpStatusProvider from './WaterPumpStatusProvider.js';
+import WaterPumpStatusProvider from '../components/WaterPumpStatusProvider.js';
 
 const WaterPumpAPIContext = React.createContext();
 

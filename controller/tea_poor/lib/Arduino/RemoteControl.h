@@ -4,20 +4,25 @@
 #include <Arduino.h>
 #include <WiFiS3.h>
 #include <aWOT.h>
+#include <functional>
 
-// define routes callback function signature
-typedef void (*RemoteControlRoutesCallback)(Application &app);
+// forward declaration
+class RemoteControl;
+
+// define callback for (re)connecting to WiFi, use std::function
+typedef std::function<void(RemoteControl&, Application&)> NetworkConnectCallback;
 
 class RemoteControl {
 public:
-  RemoteControl(const char* SSID, const char* SSIDPassword);
+  RemoteControl(const NetworkConnectCallback &onConnect);
   ~RemoteControl();
-  void setup(RemoteControlRoutesCallback routes);
+  void setup();
   void process();
-  String asJSONString() const;
+  void reconnect();
+  ///////////////////
+  void connectTo(const char* ssid, const char* password);
 private:
-  const String _SSID;
-  const String _SSIDPassword;
+  NetworkConnectCallback _onConnect;
   WiFiServer _server;
   Application _app;
 
