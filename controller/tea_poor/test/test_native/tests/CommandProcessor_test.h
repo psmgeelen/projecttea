@@ -5,6 +5,7 @@
 
 const auto VALID_POWER = "100";
 const auto INVALID_TIME_ERROR_MESSAGE = "{ \"error\": \"invalid milliseconds value\" }";
+const auto INVALID_POWER_ERROR_MESSAGE = "{ \"error\": \"invalid power value\" }";
 // test that pour_tea() method returns error message if milliseconds:
 // - greater than threshold
 // - less than 0
@@ -18,6 +19,19 @@ TEST(CommandProcessor, pour_tea_invalid_milliseconds) {
   ASSERT_EQ(commandProcessor.pour_tea("abc", VALID_POWER), INVALID_TIME_ERROR_MESSAGE);
 }
 
+// test that pour_tea() method returns error message if power:
+// - greater than 100
+// - less than 0
+// - empty string
+// - not a number
+TEST(CommandProcessor, pour_tea_invalid_power) {
+  CommandProcessor commandProcessor(123, nullptr, nullptr);
+  ASSERT_EQ(commandProcessor.pour_tea("123", "101"), INVALID_POWER_ERROR_MESSAGE);
+  ASSERT_EQ(commandProcessor.pour_tea("123", "-1"), INVALID_POWER_ERROR_MESSAGE);
+  ASSERT_EQ(commandProcessor.pour_tea("123", ""), INVALID_POWER_ERROR_MESSAGE);
+  ASSERT_EQ(commandProcessor.pour_tea("123", "abc"), INVALID_POWER_ERROR_MESSAGE);
+}
+
 // for simplicity of the UI, we should accept as valid 0 and exactly threshold value
 TEST(CommandProcessor, pour_tea_valid_boundary_values) {
   auto env = std::make_shared<FakeEnvironment>();
@@ -28,7 +42,7 @@ TEST(CommandProcessor, pour_tea_valid_boundary_values) {
   ASSERT_NE(commandProcessor.pour_tea("123", VALID_POWER), INVALID_TIME_ERROR_MESSAGE);
 }
 
-// test that start pouring tea by calling pour_tea() method and its stops after T milliseconds
+// test that start pouring tea by calling pour_tea() method with specified parameters
 TEST(CommandProcessor, pour_tea) {
   auto env = std::make_shared<FakeEnvironment>();
   env->time(2343);
