@@ -34,8 +34,8 @@ TEST(CommandProcessor, pour_tea_invalid_power) {
 
 // for simplicity of the UI, we should accept as valid 0 and exactly threshold value
 TEST(CommandProcessor, pour_tea_valid_boundary_values) {
-  auto env = std::make_shared<FakeEnvironment>();
-  auto waterPump = std::make_shared<FakeWaterPumpSchedulerAPI>();
+  const auto env = std::make_shared<FakeEnvironment>();
+  const auto waterPump = std::make_shared<FakeWaterPumpSchedulerAPI>(env);
   CommandProcessor commandProcessor(123, env, waterPump);
   
   ASSERT_NE(commandProcessor.pour_tea("0", VALID_POWER), INVALID_TIME_ERROR_MESSAGE);
@@ -44,9 +44,9 @@ TEST(CommandProcessor, pour_tea_valid_boundary_values) {
 
 // test that start pouring tea by calling pour_tea() method with specified parameters
 TEST(CommandProcessor, pour_tea) {
-  auto env = std::make_shared<FakeEnvironment>();
+  const auto env = std::make_shared<FakeEnvironment>();
+  const auto waterPump = std::make_shared<FakeWaterPumpSchedulerAPI>(env);
   env->time(2343);
-  auto waterPump = std::make_shared<FakeWaterPumpSchedulerAPI>();
   CommandProcessor commandProcessor(10000, env, waterPump);
   const auto response = commandProcessor.pour_tea("1234", "23");
   ASSERT_EQ(waterPump->_log, "start(1234, 23, 2343)\n");
@@ -54,8 +54,8 @@ TEST(CommandProcessor, pour_tea) {
 
 // test that stop() method stops pouring tea
 TEST(CommandProcessor, stop) {
-  auto env = std::make_shared<FakeEnvironment>();
-  auto waterPump = std::make_shared<FakeWaterPumpSchedulerAPI>();
+  const auto env = std::make_shared<FakeEnvironment>();
+  const auto waterPump = std::make_shared<FakeWaterPumpSchedulerAPI>(env);
   CommandProcessor commandProcessor(123, env, waterPump);
   const auto response = commandProcessor.stop();
   ASSERT_EQ(waterPump->_log, "stop()\n");
@@ -63,8 +63,8 @@ TEST(CommandProcessor, stop) {
 
 // test that status() method returns JSON string with water pump status
 TEST(CommandProcessor, status) {
-  auto env = std::make_shared<FakeEnvironment>();
-  auto waterPump = std::make_shared<FakeWaterPumpSchedulerAPI>();
+  const auto env = std::make_shared<FakeEnvironment>();
+  const auto waterPump = std::make_shared<FakeWaterPumpSchedulerAPI>(env);
   CommandProcessor commandProcessor(123, env, waterPump);
   const auto response = commandProcessor.status();
   ASSERT_EQ(response, "{"
@@ -80,8 +80,8 @@ TEST(CommandProcessor, status) {
 
 // test that status() method returns JSON string with actual time left
 TEST(CommandProcessor, status_running) {
-  auto env = std::make_shared<FakeEnvironment>();
-  auto waterPump = std::make_shared<FakeWaterPumpSchedulerAPI>();
+  const auto env = std::make_shared<FakeEnvironment>();
+  const auto waterPump = std::make_shared<FakeWaterPumpSchedulerAPI>(env);
   CommandProcessor commandProcessor(12345, env, waterPump);
   
   commandProcessor.pour_tea("1123", "100");

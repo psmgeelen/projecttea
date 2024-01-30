@@ -9,13 +9,13 @@
 #include <sstream>
 #include <ArduinoEnvironment.h>
 
-IEnvironmentPtr env = std::make_shared<ArduinoEnvironment>();
+const IEnvironmentPtr env = std::make_shared<ArduinoEnvironment>();
 
 // Setting up water pump
-auto waterPump = std::make_shared<WaterPumpScheduler>(
+const auto waterPump = std::make_shared<WaterPumpScheduler>(
   std::make_shared<WaterPumpController>(
     WATER_PUMP_DIRECTION_PIN, WATER_PUMP_BRAKE_PIN, WATER_PUMP_POWER_PIN
-  )
+  ), env
 );
 
 // build command processor
@@ -76,6 +76,6 @@ void setup() {
 }
 
 void loop() {
-  waterPump->tick(millis());
+  waterPump->tick();
   remoteControl.process();
 };

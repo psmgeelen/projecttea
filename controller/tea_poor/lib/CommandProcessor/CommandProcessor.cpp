@@ -54,7 +54,7 @@ std::string CommandProcessor::pour_tea(const char *milliseconds, const char *pow
     return std::string("{ \"error\": \"invalid power value\" }");
   }
   // start pouring tea
-  _waterPump->start( atoi(milliseconds), atoi(power), _env->time() );
+  _waterPump->start( atoi(milliseconds), atoi(power) );
   return status();
 }
 
