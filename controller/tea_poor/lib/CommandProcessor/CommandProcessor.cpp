@@ -44,13 +44,17 @@ std::string CommandProcessor::status() {
   return response.str();
 }
 
-std::string CommandProcessor::pour_tea(const char *milliseconds) {
+std::string CommandProcessor::pour_tea(const char *milliseconds, const char *power) {
   if (!isValidIntNumber(milliseconds, _waterPumpSafeThreshold + 1)) {
     // send error message as JSON
     return std::string("{ \"error\": \"invalid milliseconds value\" }");
   }
+  if (!isValidIntNumber(power, 101)) {
+    // send error message as JSON
+    return std::string("{ \"error\": \"invalid power value\" }");
+  }
   // start pouring tea
-  _waterPump->start( atoi(milliseconds), _env->time() );
+  _waterPump->start( atoi(milliseconds), atoi(power), _env->time() );
   return status();
 }
 

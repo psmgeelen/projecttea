@@ -22,7 +22,7 @@ class IWaterPumpSchedulerAPI {
 public:
   virtual ~IWaterPumpSchedulerAPI() {}
   virtual void stop() = 0;
-  virtual void start(unsigned long runTimeMs, unsigned long currentTimeMs) = 0;
+  virtual void start(unsigned long runTimeMs, int power, unsigned long currentTimeMs) = 0;
   virtual WaterPumpStatus status() = 0;
 };
 

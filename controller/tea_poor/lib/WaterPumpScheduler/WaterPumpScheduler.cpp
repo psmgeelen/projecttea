@@ -12,9 +12,9 @@ void WaterPumpScheduler::setup() {
   _waterPump->setup();
 }
 
-void WaterPumpScheduler::start(unsigned long runTimeMs, unsigned long currentTimeMs) {
+void WaterPumpScheduler::start(unsigned long runTimeMs, int power, unsigned long currentTimeMs) {
   _stopTime = currentTimeMs + runTimeMs;
-  _waterPump->start();
+  _waterPump->start(power);
 }
 
 void WaterPumpScheduler::stop() {

@@ -46,8 +46,11 @@ RemoteControl remoteControl(
     app.get("/pour_tea", [](Request &req, Response &res) {
       char milliseconds[64];
       req.query("milliseconds", milliseconds, 64);
+
+      char power[64];
+      req.query("powerLevel", power, 64);
       
-      const auto response = commandProcessor.pour_tea(milliseconds);
+      const auto response = commandProcessor.pour_tea(milliseconds, power);
       withExtraHeaders(res);
       res.print(response.c_str());
     });

@@ -11,7 +11,7 @@ TEST(WaterPumpScheduler, test_pump_stops_after_given_time) {
   waterPumpScheduler.setup();
   // start water pump
   unsigned long currentTimeMs = 0;
-  waterPumpScheduler.start(runTimeMs, currentTimeMs);
+  waterPumpScheduler.start(runTimeMs, 1, currentTimeMs);
   // check status
   auto status = waterPumpScheduler.status();
   ASSERT_TRUE(status.isRunning);
@@ -34,14 +34,14 @@ TEST(WaterPumpScheduler, test_pump_is_periodically_forced_to_stop_after_given_ti
   waterPumpScheduler.setup();
   // start water pump
   unsigned long currentTimeMs = 0;
-  waterPumpScheduler.start(1, currentTimeMs);
+  waterPumpScheduler.start(1, 1, currentTimeMs);
   currentTimeMs += 1;
   waterPumpScheduler.tick(currentTimeMs);
   ASSERT_FALSE(fakeWaterPump->isRunning()); // pump should be stopped after given time
 
   for(int i = 0; i < 10; i++) {
     // emulate that pump was started again
-    fakeWaterPump->start();
+    fakeWaterPump->start(1);
     currentTimeMs += 1000;
     waterPumpScheduler.tick(currentTimeMs);
     ASSERT_FALSE(fakeWaterPump->isRunning()); // pump should be stopped

@@ -11,8 +11,12 @@ public:
     _log += "stop()\n";
   }
 
-  void start(unsigned long runTimeMs, unsigned long currentTimeMs) override {
-    _log += "start(" + std::to_string(runTimeMs) + ", " + std::to_string(currentTimeMs) + ")\n";
+  void start(unsigned long runTimeMs, int power, unsigned long currentTimeMs) override {
+    _log += "start(" + 
+      std::to_string(runTimeMs) + ", " +
+      std::to_string(power) + ", " +
+      std::to_string(currentTimeMs) +
+      ")\n";
   }
 
   WaterPumpStatus status() override {

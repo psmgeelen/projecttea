@@ -3,6 +3,7 @@
 #include "mocks/FakeWaterPumpSchedulerAPI.h"
 #include "mocks/FakeEnvironment.h"
 
+const auto VALID_POWER = "100";
 const auto INVALID_TIME_ERROR_MESSAGE = "{ \"error\": \"invalid milliseconds value\" }";
 // test that pour_tea() method returns error message if milliseconds:
 // - greater than threshold
@@ -11,10 +12,10 @@ const auto INVALID_TIME_ERROR_MESSAGE = "{ \"error\": \"invalid milliseconds val
 // - not a number
 TEST(CommandProcessor, pour_tea_invalid_milliseconds) {
   CommandProcessor commandProcessor(123, nullptr, nullptr);
-  ASSERT_EQ(commandProcessor.pour_tea("1234"), INVALID_TIME_ERROR_MESSAGE);
-  ASSERT_EQ(commandProcessor.pour_tea("-1"), INVALID_TIME_ERROR_MESSAGE);
-  ASSERT_EQ(commandProcessor.pour_tea(""), INVALID_TIME_ERROR_MESSAGE);
-  ASSERT_EQ(commandProcessor.pour_tea("abc"), INVALID_TIME_ERROR_MESSAGE);
+  ASSERT_EQ(commandProcessor.pour_tea("1234", VALID_POWER), INVALID_TIME_ERROR_MESSAGE);
+  ASSERT_EQ(commandProcessor.pour_tea("-1", VALID_POWER), INVALID_TIME_ERROR_MESSAGE);
+  ASSERT_EQ(commandProcessor.pour_tea("", VALID_POWER), INVALID_TIME_ERROR_MESSAGE);
+  ASSERT_EQ(commandProcessor.pour_tea("abc", VALID_POWER), INVALID_TIME_ERROR_MESSAGE);
 }
 
 // for simplicity of the UI, we should accept as valid 0 and exactly threshold value
@@ -22,9 +23,9 @@ TEST(CommandProcessor, pour_tea_valid_boundary_values) {
   auto env = std::make_shared<FakeEnvironment>();
   auto waterPump = std::make_shared<FakeWaterPumpSchedulerAPI>();
   CommandProcessor commandProcessor(123, env, waterPump);
-
-  ASSERT_NE(commandProcessor.pour_tea("0"), INVALID_TIME_ERROR_MESSAGE);
-  ASSERT_NE(commandProcessor.pour_tea("123"), INVALID_TIME_ERROR_MESSAGE);
+  
+  ASSERT_NE(commandProcessor.pour_tea("0", VALID_POWER), INVALID_TIME_ERROR_MESSAGE);
+  ASSERT_NE(commandProcessor.pour_tea("123", VALID_POWER), INVALID_TIME_ERROR_MESSAGE);
 }
 
 // test that start pouring tea by calling pour_tea() method and its stops after T milliseconds
@@ -33,8 +34,8 @@ TEST(CommandProcessor, pour_tea) {
   env->time(2343);
   auto waterPump = std::make_shared<FakeWaterPumpSchedulerAPI>();
   CommandProcessor commandProcessor(10000, env, waterPump);
-  const auto response = commandProcessor.pour_tea("1234");
-  ASSERT_EQ(waterPump->_log, "start(1234, 2343)\n");
+  const auto response = commandProcessor.pour_tea("1234", "23");
+  ASSERT_EQ(waterPump->_log, "start(1234, 23, 2343)\n");
 }
 
 // test that stop() method stops pouring tea
@@ -69,7 +70,7 @@ TEST(CommandProcessor, status_running) {
   auto waterPump = std::make_shared<FakeWaterPumpSchedulerAPI>();
   CommandProcessor commandProcessor(12345, env, waterPump);
   
-  commandProcessor.pour_tea("1123");
+  commandProcessor.pour_tea("1123", "100");
 
   env->time(123);
   waterPump->_status.isRunning = true;

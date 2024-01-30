@@ -20,10 +20,11 @@ void WaterPumpController::setup() {
   stop();
 }
 
-void WaterPumpController::start() {
+void WaterPumpController::start(int powerInPercents) {
+  const int power = map(powerInPercents, 0, 100, 0, _maxPower);
   _isRunning = true;
   digitalWrite(_brakePin, LOW); // release breaks
-  analogWrite(_powerPin, 255);
+  analogWrite(_powerPin, power);
 }
 
 void WaterPumpController::stop() {

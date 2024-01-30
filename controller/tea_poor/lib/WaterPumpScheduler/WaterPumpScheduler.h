@@ -23,7 +23,7 @@ public:
   void tick(unsigned long currentTimeMs);
 
   // Public API
-  void start(unsigned long runTimeMs, unsigned long currentTimeMs) override;
+  void start(unsigned long runTimeMs, int power, unsigned long currentTimeMs) override;
   void stop() override;
   WaterPumpStatus status() override;
 };

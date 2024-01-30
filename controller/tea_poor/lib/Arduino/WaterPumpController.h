@@ -14,7 +14,7 @@ public:
   virtual ~WaterPumpController() override;
   
   virtual void setup() override;
-  virtual void start() override;
+  virtual void start(int powerInPercents) override;
   virtual void stop() override;
 
   virtual bool isRunning() const override { return _isRunning; }
