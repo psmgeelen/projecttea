@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <memory>
 #include <WaterPumpController.h>
+#include <AdjustedWaterPump.h>
 #include <WaterPumpScheduler.h>
 #include <RemoteControl.h>
 #include <CommandProcessor.h>
@@ -9,12 +10,14 @@
 #include <sstream>
 #include <ArduinoEnvironment.h>
 
-const IEnvironmentPtr env = std::make_shared<ArduinoEnvironment>();
+const auto env = std::make_shared<ArduinoEnvironment>();
 
 // Setting up water pump
 const auto waterPump = std::make_shared<WaterPumpScheduler>(
-  std::make_shared<WaterPumpController>(
-    WATER_PUMP_DIRECTION_PIN, WATER_PUMP_BRAKE_PIN, WATER_PUMP_POWER_PIN
+  std::make_shared<AdjustedWaterPump>(
+    std::make_shared<WaterPumpController>(
+      WATER_PUMP_DIRECTION_PIN, WATER_PUMP_BRAKE_PIN, WATER_PUMP_POWER_PIN
+    )
   ), env
 );
 

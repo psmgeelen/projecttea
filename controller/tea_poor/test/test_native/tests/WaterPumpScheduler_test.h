@@ -14,7 +14,7 @@ TEST(WaterPumpScheduler, test_pump_stops_after_given_time) {
   // start water pump
   fakeEnvironment->time(0);
   waterPumpScheduler.start(runTimeMs, 1);
-  ASSERT_EQ(fakeWaterPump->powerInPercents(), 1);
+  ASSERT_EQ(fakeWaterPump->power(), 1);
   // check status
   auto status = waterPumpScheduler.status();
   ASSERT_TRUE(status.isRunning);
@@ -48,7 +48,7 @@ TEST(WaterPumpScheduler, test_pump_is_periodically_forced_to_stop_after_given_ti
   for(int i = 0; i < 10; i++) {
     // emulate that pump was started again
     fakeWaterPump->start(1);
-    ASSERT_EQ(fakeWaterPump->powerInPercents(), 1);
+    ASSERT_EQ(fakeWaterPump->power(), 1);
     fakeEnvironment->time(fakeEnvironment->time() + T);
     waterPumpScheduler.tick();
     ASSERT_FALSE(fakeWaterPump->isRunning()); // pump should be stopped
@@ -63,5 +63,5 @@ TEST(WaterPumpScheduler, test_pumps_power_is_set_to_specified_value) {
   waterPumpScheduler.setup();
   const int power = 23;
   waterPumpScheduler.start(1, power);
-  ASSERT_EQ(fakeWaterPump->powerInPercents(), power);
+  ASSERT_EQ(fakeWaterPump->power(), power);
 }

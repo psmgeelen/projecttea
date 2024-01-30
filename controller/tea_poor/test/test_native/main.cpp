@@ -3,6 +3,7 @@
 // include tests
 #include "tests/WaterPumpScheduler_test.h"
 #include "tests/CommandProcessor_test.h"
+#include "tests/AdjustedWaterPump_test.h"
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

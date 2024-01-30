@@ -7,17 +7,17 @@
 class FakeWaterPump : public IWaterPump {
 private:
   bool _isRunning = false;
-  int _powerInPercents = 0;
+  int _power = 0;
 public:
   void setup() override { _isRunning = false; }
   void stop() override  { _isRunning = false; }
-  void start(int powerInPercents) override {
+  void start(int power) override {
     _isRunning = true;
-    _powerInPercents = powerInPercents;
+    _power = power;
   }
 
   bool isRunning() const override { return _isRunning; }
-  int powerInPercents() const { return _powerInPercents; }
+  int power() const { return _power; }
 };
 
 #endif // FAKE_WATER_PUMP_H
