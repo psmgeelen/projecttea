@@ -10,6 +10,7 @@ import SystemControls from './components/SystemControls.js';
 import SystemStatusArea from './components/SystemStatusArea.js';
 import CurrentOperationInfoArea from './components/CurrentOperationInfoArea.js';
 import HoldToPour from './components/HoldToPour.js';
+import PowerLevel from './components/PowerLevel.js';
 
 function App({ isConnected }) {
   return (
@@ -21,6 +22,7 @@ function App({ isConnected }) {
         <APIAddressField />
         {isConnected ? (
           <>
+            <PowerLevel />
             <PourTimeField />
             <CurrentOperationInfoArea />
             <SystemControls />

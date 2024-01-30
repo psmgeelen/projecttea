@@ -52,12 +52,30 @@ describe('CWaterPumpAPIImpl', () => {
   // tests per method
   describe('start', () => {
     it('common test cases', async () => {
-      const T = Math.random() * 1000;
-      const callback = async (api) => await api.start(T);
+      const T = Math.floor(Math.random() * 1000);
+      const P = Math.floor(Math.random() * 99) + 1;
+      const callback = async (api) => await api.start(T, P);
       await shouldThrowErrorFromResponse(callback);
       await shouldRethrowError(callback);
       await shouldPreprocessResponse(callback);
-      await shouldBeCalledWith(callback, '/pour_tea', { milliseconds: T });
+      await shouldBeCalledWith(callback, '/pour_tea', { milliseconds: T, powerLevel: P});
+    });
+
+    it('should throw error if pouring time is not a valid number', async () => {
+      const message = 'Pouring time is not a valid number';
+      const api = new CWaterPumpAPIImpl({ client: {} });
+      await expect(api.start('abc', 100)).rejects.toThrow(message);
+      await expect(api.start(-1, 100)).rejects.toThrow(message);
+      await expect(api.start(0, 100)).rejects.toThrow(message);
+    });
+
+    it('should throw error if power level is not a valid number', async () => {
+      const message = 'Power level is not a valid number';
+      const api = new CWaterPumpAPIImpl({ client: {} });
+      await expect(api.start(100, 'abc')).rejects.toThrow(message);
+      await expect(api.start(100, -1)).rejects.toThrow(message);
+      await expect(api.start(100, 0)).rejects.toThrow(message);
+      await expect(api.start(100, 101)).rejects.toThrow(message);
     });
   });
 

@@ -15,7 +15,8 @@ export function WaterPumpAPIProvider({ children }) {
     () => new CWaterPumpAPI({ URL: apiHost }),
     [apiHost]
   );
-
+  // TODO: provide also the API methods with binded values from the store
+  //       to simplify the code in the components (HodlToPour and PowerLevel)
   const value = { API: apiObject, };
   return (
     <WaterPumpAPIContext.Provider value={value}>

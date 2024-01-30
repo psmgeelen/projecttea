@@ -18,9 +18,9 @@ function withNotification(action, message) {
 // Async thunks
 export const startPump = createAsyncThunk(
   'systemStatus/startPump',
-  withNotification(
-    async ({ api, pouringTime }) => {
-      return await api.start(pouringTime);
+  withNotification( 
+    async ({ api, pouringTime, powerLevel }) => {
+      return await api.start(pouringTime, powerLevel);
     },
     'Failed to start pump'
   )

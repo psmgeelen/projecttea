@@ -11,9 +11,27 @@ class CWaterPumpAPIImpl {
     return { response, requestTime: end - start };
   }
 
-  async start(runTimeMs) {
+  async start(runTimeMs, powerLevelInPercents) {
+    // basic validation
+    const isValidTime = Number.isInteger(runTimeMs) && (0 < runTimeMs);
+    if(!isValidTime) {
+      throw new Error('Pouring time is not a valid number');
+    }
+
+    const isValidPowerLevel = Number.isInteger(powerLevelInPercents) &&
+      (0 < powerLevelInPercents) && (powerLevelInPercents <= 100);
+    if(!isValidPowerLevel) {
+      throw new Error('Power level is not a valid number');
+    }
+    /////////////////////////////////////////////////////////////////
     const { response: { data }, requestTime } = await this._execute(
-      async () => await this._client.get('/pour_tea', { params: { milliseconds: runTimeMs } })
+      async () => await this._client.get(
+        '/pour_tea',
+        { params: {
+          milliseconds: runTimeMs,
+          powerLevel: powerLevelInPercents,
+        }}
+      )
     );
     return this.preprocessResponse({ response: data, requestTime });
   }

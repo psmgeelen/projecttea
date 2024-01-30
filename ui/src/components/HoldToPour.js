@@ -65,12 +65,23 @@ export function HoldToPourComponent({ startPump, stopPump, interval }) {
 }
 
 // Helper wrapper to simplify the code in the component
-function HoldToPourComponent_withExtras({ pouringTime, startPump, stopPump }) {
+function HoldToPourComponent_withExtras({ pouringTime, powerLevel, startPump, stopPump }) {
   const api = useWaterPumpAPI().API;
+  // to prevent the callback from changing when the pouringTime or powerLevel changes
+  const _pouringTime = React.useRef(pouringTime);
+  React.useEffect(() => { _pouringTime.current = pouringTime; }, [pouringTime]);
+
+  const _powerLevel = React.useRef(powerLevel);
+  React.useEffect(() => { _powerLevel.current = powerLevel; }, [powerLevel]);
   
   const _startPump = React.useCallback(
-    async () => { await startPump({ api, pouringTime }); },
-    [api, startPump, pouringTime]
+    async () => {
+      await startPump({ 
+        api,
+        pouringTime: _pouringTime.current,
+        powerLevel: _powerLevel.current,
+      });
+    }, [api, startPump, _pouringTime, _powerLevel]
   );
   const _stopPump = React.useCallback(
     async () => { await stopPump({ api }); },
@@ -88,6 +99,9 @@ function HoldToPourComponent_withExtras({ pouringTime, startPump, stopPump }) {
 };
 
 export default connect(
-  state => ({ pouringTime: state.UI.pouringTime }),
+  state => ({
+    pouringTime: state.UI.pouringTime,
+    powerLevel: state.UI.powerLevelInPercents,
+  }),
   { startPump, stopPump }
 )(HoldToPourComponent_withExtras);

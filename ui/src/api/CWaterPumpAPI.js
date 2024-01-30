@@ -29,7 +29,10 @@ class CWaterPumpAPI {
     });
   }
 
-  async start(runTimeMs) { return await this._impl.start(runTimeMs); }
+  async start(runTimeMs, powerLevelInPercents) {
+    return await this._impl.start(runTimeMs, powerLevelInPercents);
+  }
+
   async stop() { return await this._impl.stop(); }
   async status() { return await this._impl.status(); }
 }
