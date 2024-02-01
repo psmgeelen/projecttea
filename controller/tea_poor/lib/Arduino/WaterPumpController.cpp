@@ -20,10 +20,10 @@ void WaterPumpController::setup() {
   stop();
 }
 
-void WaterPumpController::start() {
+void WaterPumpController::start(int power) {
   _isRunning = true;
   digitalWrite(_brakePin, LOW); // release breaks
-  analogWrite(_powerPin, 255);
+  analogWrite(_powerPin, power);
 }
 
 void WaterPumpController::stop() {

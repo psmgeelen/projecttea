@@ -20,7 +20,7 @@ class CommandProcessor {
     {}
 
     std::string status();
-    std::string pour_tea(const char *milliseconds);
+    std::string pour_tea(const char *milliseconds, const char *power);
     std::string stop();
   private:
     const int _waterPumpSafeThreshold;

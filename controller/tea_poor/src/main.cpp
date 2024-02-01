@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <memory>
 #include <WaterPumpController.h>
+#include <AdjustedWaterPump.h>
 #include <WaterPumpScheduler.h>
 #include <RemoteControl.h>
 #include <CommandProcessor.h>
@@ -9,13 +10,15 @@
 #include <sstream>
 #include <ArduinoEnvironment.h>
 
-IEnvironmentPtr env = std::make_shared<ArduinoEnvironment>();
+const auto env = std::make_shared<ArduinoEnvironment>();
 
 // Setting up water pump
-auto waterPump = std::make_shared<WaterPumpScheduler>(
-  std::make_shared<WaterPumpController>(
-    WATER_PUMP_DIRECTION_PIN, WATER_PUMP_BRAKE_PIN, WATER_PUMP_POWER_PIN
-  )
+const auto waterPump = std::make_shared<WaterPumpScheduler>(
+  std::make_shared<AdjustedWaterPump>(
+    std::make_shared<WaterPumpController>(
+      WATER_PUMP_DIRECTION_PIN, WATER_PUMP_BRAKE_PIN, WATER_PUMP_POWER_PIN
+    )
+  ), env
 );
 
 // build command processor
@@ -46,8 +49,11 @@ RemoteControl remoteControl(
     app.get("/pour_tea", [](Request &req, Response &res) {
       char milliseconds[64];
       req.query("milliseconds", milliseconds, 64);
+
+      char power[64];
+      req.query("powerLevel", power, 64);
       
-      const auto response = commandProcessor.pour_tea(milliseconds);
+      const auto response = commandProcessor.pour_tea(milliseconds, power);
       withExtraHeaders(res);
       res.print(response.c_str());
     });
@@ -73,6 +79,6 @@ void setup() {
 }
 
 void loop() {
-  waterPump->tick(millis());
+  waterPump->tick();
   remoteControl.process();
 };
