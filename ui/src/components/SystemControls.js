@@ -6,11 +6,11 @@ import { useWaterPumpAPI } from '../contexts/WaterPumpAPIContext';
 import { startPump, stopPump } from '../store/slices/SystemStatus.js';
 
 export function SystemControlsComponent({
-  pouringTime, systemStatus, startPump, stopPump
+  pouringTime, powerLevel, systemStatus, startPump, stopPump
 }) {
   const api = useWaterPumpAPI().API;
   const handleStart = async () => {
-    await startPump({ api , pouringTime });
+    await startPump({ api, pouringTime, powerLevel });
   };
 
   const handleStop = async () => {
@@ -33,6 +33,7 @@ export function SystemControlsComponent({
 export default connect(
   state => ({
     pouringTime: state.UI.pouringTime,
+    powerLevel: state.UI.powerLevelInPercents,
     systemStatus: state.systemStatus,
   }), { startPump, stopPump }
 )(SystemControlsComponent);

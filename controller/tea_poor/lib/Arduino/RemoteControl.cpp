@@ -96,7 +96,14 @@ void RemoteControl::reconnect() {
 }
 
 void RemoteControl::process() {
-  if(WL_CONNECTED != WiFi.status()) {
+  const auto status = WiFi.status();
+  // TODO: verify if this is the correct way to detect if we need to reconnect
+  const bool needsReconnect = (
+    (WL_CONNECT_FAILED == status) ||
+    (WL_CONNECTION_LOST == status) ||
+    (WL_DISCONNECTED == status)
+  );
+  if(needsReconnect) {
     reconnect();
     return; // wait for next tick, just to be sure that all is ok
   }
