@@ -17,7 +17,7 @@ function WaterPumpStatusProviderComoponent({ children, updateStatus, systemStatu
       if(null == API) return;
       
       nextFetchTime.current = Number.MAX_SAFE_INTEGER; // prevent concurrent fetches
-      await updateStatus(API);
+      await updateStatus({ api: API });
       nextFetchTime.current = Date.now() + FETCH_INTERVAL;
     },
     [API, updateStatus, nextFetchTime]

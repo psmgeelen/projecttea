@@ -3,19 +3,11 @@ import { connect } from 'react-redux';
 import { Button, Container } from 'react-bootstrap';
 
 import { useWaterPumpAPI } from '../contexts/WaterPumpAPIContext';
-import { startPump, stopPump } from '../store/slices/SystemStatus.js';
 
-export function SystemControlsComponent({
-  pouringTime, powerLevel, systemStatus, startPump, stopPump
-}) {
-  const api = useWaterPumpAPI().API;
-  const handleStart = async () => {
-    await startPump({ api, pouringTime, powerLevel });
-  };
-
-  const handleStop = async () => {
-    await stopPump({ api });
-  };
+export function SystemControlsComponent({ systemStatus }) {
+  const { API } = useWaterPumpAPI();
+  const handleStart = async () => { await API.startPump(); };
+  const handleStop = async () => { await API.stopPump(); };
 
   const isRunning = systemStatus.pump.running;
   return (
@@ -32,8 +24,6 @@ export function SystemControlsComponent({
 
 export default connect(
   state => ({
-    pouringTime: state.UI.pouringTime,
-    powerLevel: state.UI.powerLevelInPercents,
     systemStatus: state.systemStatus,
-  }), { startPump, stopPump }
+  }), { }
 )(SystemControlsComponent);

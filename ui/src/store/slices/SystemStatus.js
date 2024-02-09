@@ -39,7 +39,7 @@ export const stopPump = createAsyncThunk(
 export const updateSystemStatus = createAsyncThunk(
   'systemStatus/update',
   withNotification(
-    async ( api ) => {
+    async ({ api }) => {
       return await api.status();
     },
     'Failed to update system status'
