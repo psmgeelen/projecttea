@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Container, Form } from 'react-bootstrap';
 import { useWaterPumpAPI } from '../contexts/WaterPumpAPIContext';
-import { startPump, stopPump } from '../store/slices/SystemStatus.js';
 
-export function HoldToPourComponent({ startPump, stopPump, interval }) {
+export function HoldToPourComponent({ interval }) {
+  const { API }= useWaterPumpAPI();
   const [isPouring, setIsPouring] = useState(false);
   const [clickToPour, setClickToPour] = useState(false);
   // continuously pour water while the button is pressed
@@ -14,28 +14,28 @@ export function HoldToPourComponent({ startPump, stopPump, interval }) {
       if(Date.now() < lastPouringTime.current) return;
       try {
         lastPouringTime.current = Number.MAX_SAFE_INTEGER; // prevent concurrent calls
-        await startPump();
+        await API.startPump();
         lastPouringTime.current = Date.now() + interval;
       } catch(e) {
         lastPouringTime.current = 0; // run again on next tick
       }
     },
-    [startPump, interval]
+    [interval, API]
   );
 
   useEffect(() => {
     if(!isPouring) {
       lastPouringTime.current = 0;
-      stopPump();
+      API.stopPump();
       return;
     }
     // tick every 100ms
     const tid = setInterval(onTick, 100);
     return async () => {
       clearInterval(tid);
-      if(isPouring) await stopPump();
+      if(isPouring) await API.stopPump();
     };
-  }, [onTick, isPouring, stopPump, lastPouringTime]);
+  }, [onTick, isPouring, API]);
 
   const handlePress = () => { setIsPouring(true); };
   const handleRelease = () => { setIsPouring(false); };
@@ -65,43 +65,18 @@ export function HoldToPourComponent({ startPump, stopPump, interval }) {
 }
 
 // Helper wrapper to simplify the code in the component
-function HoldToPourComponent_withExtras({ pouringTime, powerLevel, startPump, stopPump }) {
-  const api = useWaterPumpAPI().API;
-  // to prevent the callback from changing when the pouringTime or powerLevel changes
-  const _pouringTime = React.useRef(pouringTime);
-  React.useEffect(() => { _pouringTime.current = pouringTime; }, [pouringTime]);
-
-  const _powerLevel = React.useRef(powerLevel);
-  React.useEffect(() => { _powerLevel.current = powerLevel; }, [powerLevel]);
-  
-  const _startPump = React.useCallback(
-    async () => {
-      await startPump({ 
-        api,
-        pouringTime: _pouringTime.current,
-        powerLevel: _powerLevel.current,
-      });
-    }, [api, startPump, _pouringTime, _powerLevel]
-  );
-  const _stopPump = React.useCallback(
-    async () => { await stopPump({ api }); },
-    [api, stopPump]
-  );
+function HoldToPourComponent_withExtras({ pouringTime, ...props }) {
   // a bit smaller than the actual pouring time, to prevent the pump from stopping
   // which could damage the pump
   const interval = Math.max(Math.round(pouringTime - 500), 100);
   return (
-    <HoldToPourComponent
-      startPump={_startPump} stopPump={_stopPump}
-      interval={interval}
-    />
+    <HoldToPourComponent {...props} interval={interval} />
   );
 };
 
 export default connect(
   state => ({
     pouringTime: state.UI.pouringTime,
-    powerLevel: state.UI.powerLevelInPercents,
   }),
-  { startPump, stopPump }
+  { }
 )(HoldToPourComponent_withExtras);
