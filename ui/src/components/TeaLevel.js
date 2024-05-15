@@ -20,13 +20,12 @@ function toPercentage(realLevel) {
 
 function TeaLevel({ 
   lastOperationDuration, speed, startTeaLevel, estimatedTeaLevel,
-  changeStartTeaLevel, changeEstimatedTeaLevel, changeSpeed, lastTeaLevel
+  changeStartTeaLevel, changeEstimatedTeaLevel, changeSpeed, lastTeaLevel,
 }) {
   const [calcSpeed, setCalcSpeed] = useState(speed);
   // update the estimated level if speed or duration changes
   useEffect(() => {
     const estimatedLevel = startTeaLevel + speed * lastOperationDuration / 1000;
-    console.log(startTeaLevel, speed, lastOperationDuration, estimatedLevel);
     changeEstimatedTeaLevel(estimatedLevel);
   }, [lastOperationDuration, speed, startTeaLevel, changeEstimatedTeaLevel]);
 
@@ -37,9 +36,10 @@ function TeaLevel({
     const clickedPercentage = (clickedPosition / height) * 100;
     const newLevel = toPercentage(clickedPercentage);
     // limit the new level to the range [0, 100]
-    changeStartTeaLevel( Math.min(Math.max(newLevel, 0), 100) );
+    const level = Math.min(Math.max(newLevel, 0), 100);
+    changeStartTeaLevel( level );
     // find speed
-    const newSpeed = (newLevel - lastTeaLevel) / (lastOperationDuration / 1000);
+    const newSpeed = (level - lastTeaLevel) / (lastOperationDuration / 1000);
     setCalcSpeed(newSpeed);
   };
 
@@ -56,8 +56,17 @@ function TeaLevel({
             <img src={cup} alt="Cup" className="cup-image" draggable="false" 
               onClick={handleCupClick}
             />
-            <div className="tea-level" style={{ bottom: `${toRealLevel(startTeaLevel)}%` }}></div>
-            <div className="est-tea-level" style={{ bottom: `${toRealLevel(estimatedTeaLevel)}%` }}></div>
+            <div className="tea-level" style={{ bottom: `${toRealLevel(startTeaLevel)}%` }}>
+              {startTeaLevel.toFixed(0)}%
+            </div>
+            
+            <div className="est-tea-level" style={{ bottom: `${toRealLevel(estimatedTeaLevel)}%` }}>
+              {estimatedTeaLevel.toFixed(0)}%
+            </div>
+
+            <div className="prev-tea-level" style={{ bottom: `${toRealLevel(lastTeaLevel)}%` }}>
+              {lastTeaLevel.toFixed(0)}%
+            </div>
           </div>
         </div>
       </div>
@@ -67,7 +76,7 @@ function TeaLevel({
         <p>last tea level: {lastTeaLevel.toFixed(2)}%</p>
       </div>
       <div>
-        <input type="text" value={calcSpeed.toFixed(2)} readOnly />
+        <input type="number" step="0.01" value={calcSpeed.toFixed(2)} />
         <button onClick={onSpeedSet}>Set Speed</button>
       </div>
     </>

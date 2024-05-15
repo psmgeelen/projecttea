@@ -5,6 +5,7 @@ const initialState = {
   prevTeaLevel: 0,
   startTeaLevel: 0,
   estimatedTeaLevel: 50,
+  estimation: true,
 }
 
 export const TempSlice = createSlice({
@@ -15,18 +16,18 @@ export const TempSlice = createSlice({
       state.lastOperationDuration = action.payload;
     },
     changeEstimatedTeaLevel: (state, action) => {
-      state.estimatedTeaLevel = action.payload;
-    },
-    changePrevTeaLevel: (state, action) => {
-      state.prevTeaLevel = action.payload;
+      if (state.estimation) {
+        state.estimatedTeaLevel = action.payload;
+      }
     },
     pumpStartedEvent: (state, action) => {
       state.prevTeaLevel = state.startTeaLevel;
+      state.estimation = true;
     },
     changeStartTeaLevel: (state, action) => {
       state.startTeaLevel = action.payload;
       state.estimatedTeaLevel = state.startTeaLevel;
-      state.lastOperationDuration = 0;
+      state.estimation = false;
     },
   }
 });
@@ -35,7 +36,6 @@ export const actions = TempSlice.actions;
 export const { 
   changeLastOperationDuration, 
   changeEstimatedTeaLevel, 
-  changePrevTeaLevel, 
   pumpStartedEvent, 
   changeStartTeaLevel
 } = actions;
