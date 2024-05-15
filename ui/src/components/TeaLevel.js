@@ -76,7 +76,11 @@ function TeaLevel({
         <p>last tea level: {lastTeaLevel.toFixed(2)}%</p>
       </div>
       <div>
-        <input type="number" step="0.01" value={calcSpeed.toFixed(2)} />
+        <input 
+          type="number" step="0.01" 
+          value={calcSpeed.toFixed(2)} 
+          onChange={(e) => setCalcSpeed(parseFloat(e.target.value))} 
+        />
         <button onClick={onSpeedSet}>Set Speed</button>
       </div>
     </>
